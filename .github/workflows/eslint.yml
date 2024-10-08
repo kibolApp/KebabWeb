@@ -8,8 +8,8 @@ on:
       - '**.js'
       - '**.ts'
       - '**.jsx'
-      - 'KebabWeb/kebab_city_tour/package.json'
-      - 'KebabWeb/kebab_city_tour/package.lock'
+      - 'kebab_city_tour/package.json'
+      - 'kebab_city_tour/package.lock'
 
 jobs:
   test-and-lint-js:
@@ -19,24 +19,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+      - uses: actions/checkout@v4
 
       - name: Cache dependencies
-        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
+        uses: actions/cache@v2
         with:
-          path: KebabWeb/kebab_city_tour/node_modules
-          key: ${{ runner.os }}-npm-dependencies-${{ hashFiles('KebabWeb/kebab_city_tour/package.lock') }}
+          path: kebab_city_tour/node_modules
+          key: ${{ runner.os }}-npm-dependencies-${{ hashFiles('kebab_city_tour/package.lock') }}
           restore-keys: ${{ runner.os }}-npm-dependencies
 
       - name: Set up node
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+        uses: actions/setup-node@v3
         with:
-          node-version: 22
+          node-version: 18
+
+      - name: Check directory structure
+        run: ls -R
 
       - name: Install npm dependencies
-        working-directory: KebabWeb/kebab_city_tour
+        working-directory: kebab_city_tour
         run: npm install
 
       - name: Run JS linter
-        working-directory: KebabWeb/kebab_city_tour
+        working-directory: kebab_city_tour
         run: npm run lint
