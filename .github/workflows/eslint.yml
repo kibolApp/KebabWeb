@@ -36,9 +36,9 @@ jobs:
       - name: Check directory structure
         run: ls -R
 
-      - name: Install npm dependencies
+      - name: Install npm dependencies with legacy-peer-deps
         working-directory: kebab_city_tour
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Run JS linter
         working-directory: kebab_city_tour
