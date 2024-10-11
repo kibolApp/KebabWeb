@@ -1,5 +1,5 @@
-import './index.css';
-import kebab_logo from './img/kebab_logo.png';
+import '../index.css';
+import kebab_logo from '../img/kebab_logo.png';
 import { useNavigate } from 'react-router-dom';
 
 export default function Header() {
@@ -13,7 +13,7 @@ export default function Header() {
       >
         Powrót do strony głównej
       </button>
-      <h1 className="text-3xl font-bold text-center text-white">
+      <h1 className="text-3xl font-bold text-center text-white absolute left-1/2 transform -translate-x-1/2">
         Legnica Kebab City Tour
       </h1>
       <div className="h-full flex items-center">
