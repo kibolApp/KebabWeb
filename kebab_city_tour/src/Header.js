@@ -6,15 +6,18 @@ export default function Header() {
   const navigate = useNavigate();
 
   return (
-    <header className="bg-yellow-600 h-24 flex items-center justify-center relative">
+    <header className="bg-yellow-600 h-24 flex items-center justify-between px-4 relative">
       <button
-        className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
         onClick={() => navigate('/')}
       >
-        Powrót do głównej strony
+        Powrót do strony głównej
       </button>
-      <div className="absolute bottom-[-3rem]">
-        <img src={kebab_logo} alt="Legnica Kebab Logo" className="h-36" />
+      <h1 className="text-3xl font-bold text-center text-white">
+        Legnica Kebab City Tour
+      </h1>
+      <div className="h-full flex items-center">
+        <img src={kebab_logo} alt="Legnica Kebab Logo" className="h-20" />
       </div>
     </header>
   );
