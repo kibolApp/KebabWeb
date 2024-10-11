@@ -1,7 +1,10 @@
 import './index.css';
 import kebab_logo from './img/kebab_logo.png';
+import { useNavigate } from 'react-router-dom';
 
 export default function Home() {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-100" style={{ fontFamily: 'Poppins, sans-serif' }}>
       <header className="h-36"></header>
@@ -17,10 +20,16 @@ export default function Home() {
             Legnica Kebab City Tour jest to aplikacja oraz witryna internetowa służąca pomocą w odnalezieniu lokalizacji wszystkich dostępnych, w planach oraz zamkniętych punktów gastronomicznych serwujących słynne Kebaby. Poniższe przyciski pokierują Cię dalej. Wybierz przycisk "Mapa" aby bezpośrednio odnaleźć Kebaby rozsiane po Legnicy. Możesz też utworzyć konto lub zalogować się aby dodać Twojego ulubionego Kebaba do zakładki "Ulubione", dzięki czemu łatwiej go odnajdziesz!!
           </p>
           <div className="flex justify-center space-x-10">
-          <button className="bg-blue-500 text-white py-6 w-40 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 text-xl">
+            <button 
+              className="bg-blue-500 text-white py-6 w-40 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 text-xl"
+              onClick={() => navigate('/map')}
+            >
               MAPA
             </button>
-            <button className="bg-blue-500 text-white py-6 px-12 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 text-xl">
+            <button 
+              className="bg-blue-500 text-white py-6 px-12 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 text-xl"
+              onClick={() => navigate('/login')}
+            >
               LOGOWANIE
             </button>
           </div>
