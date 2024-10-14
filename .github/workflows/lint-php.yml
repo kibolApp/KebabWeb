@@ -36,6 +36,10 @@ jobs:
         working-directory: Backend
         run: composer install --prefer-dist --no-interaction
 
+      - name: Run PHP linter and fix issues
+        working-directory: Backend
+        run: composer csf
+
       - name: Run PHP linter
         working-directory: Backend
         run: composer cs
