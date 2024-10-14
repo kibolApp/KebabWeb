@@ -1,0 +1,49 @@
+name: "Checking linting JS"
+
+on:
+  pull_request:
+    branches: [ "main" ]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - '**.js'
+      - '**.ts'
+      - '**.jsx'
+      - 'kebab_city_tour/package.json'
+      - 'kebab_city_tour/package.lock'
+
+jobs:
+  test-and-lint-js:
+    name: Test & lint JS codebase
+    timeout-minutes: 10
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: kebab_city_tour/node_modules
+          key: ${{ runner.os }}-npm-dependencies-${{ hashFiles('kebab_city_tour/package.lock') }}
+          restore-keys: ${{ runner.os }}-npm-dependencies
+
+      - name: Set up node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Check directory structure
+        run: ls -R
+
+      - name: Install npm dependencies with legacy-peer-deps
+        working-directory: kebab_city_tour
+        run: npm install --legacy-peer-deps
+
+      - name: Check dependency versions
+        working-directory: kebab_city_tour
+        run: npm ls
+
+      - name: Run JS linter
+        working-directory: kebab_city_tour
+        run: npm run lint

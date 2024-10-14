@@ -1,0 +1,45 @@
+name: "Lint PHP Codebase"
+
+on:
+  pull_request:
+    branches: [ "main" ]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - '**.php'
+      - 'Backend/composer.json'
+      - 'Backend/composer.lock'
+
+jobs:
+  test-and-lint-php:
+    name: Test & Lint PHP Codebase
+    timeout-minutes: 10
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4.1.1
+
+      - name: Cache dependencies
+        uses: actions/cache@v4.0.2
+        with:
+          path: Backend/vendor
+          key: ${{ runner.os }}-composer-dependencies-${{ hashFiles('Backend/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-dependencies
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@2.30.0
+        with:
+          php-version: 8.2
+          coverage: none
+
+      - name: Install Composer dependencies
+        working-directory: Backend
+        run: composer install --prefer-dist --no-interaction
+
+      - name: Run PHP linter and fix issues
+        working-directory: Backend
+        run: composer csf
+
+      - name: Run PHP linter
+        working-directory: Backend
+        run: composer cs
