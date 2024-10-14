@@ -1,15 +1,15 @@
-import React from 'react';
-import '../index.css';
-import Header from '../components/Header';
-import { MapContainer, TileLayer } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import React from 'react'
+import '../index.css'
+import Header from '../components/Header'
+import { MapContainer, TileLayer } from 'react-leaflet'
+import 'leaflet/dist/leaflet.css'
 
 export default function Map() {
   const legnicaBounds = [
     [51.165803, 16.148615],
     [51.232924, 16.177626],
     [51.202710, 16.245260],
-  ];
+  ]
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -18,7 +18,7 @@ export default function Map() {
         <div className="bg-gray-300 w-[73%] h-full mr-2 flex items-center justify-center">
           <MapContainer 
             bounds={legnicaBounds} 
-            className="w-full h-full rounded-lg shadow-lg"
+            className="size-full rounded-lg shadow-lg"
             scrollWheelZoom={true}
             maxBounds={legnicaBounds}
             maxBoundsViscosity={1.0}
@@ -35,5 +35,5 @@ export default function Map() {
         </div>
       </main>
     </div>
-  );
+  )
 }

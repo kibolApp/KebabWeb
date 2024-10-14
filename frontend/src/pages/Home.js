@@ -1,17 +1,17 @@
-import '../index.css';
-import kebab_logo from '../img/kebab_logo.png';
-import { useNavigate } from 'react-router-dom';
+import '../index.css'
+import kebab_logo from '../img/kebab_logo.png'
+import { useNavigate } from 'react-router-dom'
 
 export default function Home() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100" style={{ fontFamily: 'Poppins, sans-serif' }}>
       <header className="h-36"></header>
-      <div className="flex items-center justify-center flex-grow">
+      <div className="flex items-center justify-center grow">
         <div className="bg-gradient-to-b from-orange-300 to-white-100 p-32 rounded-lg shadow-2xl w-full max-w-7xl relative mx-12 mb-16">
           <div className="flex justify-center mb-12">
-            <img src={kebab_logo} alt="Legnica Kebab Logo" className="h-72 absolute top-[-8rem]" />
+            <img src={kebab_logo} alt="Legnica Kebab Logo" className="h-72 absolute -top-32" />
           </div>
           <h1 className="text-7xl font-semibold text-center text-gray-800 mb-10">
             LEGNICA KEBAB CITY TOUR
@@ -36,5 +36,5 @@ export default function Home() {
         </div>
       </div>
     </div>
-  );
+  )
 }

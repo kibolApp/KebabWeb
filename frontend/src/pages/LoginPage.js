@@ -1,6 +1,6 @@
-import React from 'react';
-import '../index.css';
-import Header from '../components/Header';
+import React from 'react'
+import '../index.css'
+import Header from '../components/Header'
 
 export default function LoginPage() {
   return (
@@ -12,5 +12,5 @@ export default function LoginPage() {
         </div>
       </main>
     </div>
-  );
+  )
 }
