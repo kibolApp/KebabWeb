@@ -8,8 +8,8 @@ on:
       - '**.js'
       - '**.ts'
       - '**.jsx'
-      - 'kebab_city_tour/package.json'
-      - 'kebab_city_tour/package.lock'
+      - 'frontend/package.json'
+      - 'frontend/package.lock'
 
 jobs:
   test-and-lint-js:
@@ -24,8 +24,8 @@ jobs:
       - name: Cache dependencies
         uses: actions/cache@v2
         with:
-          path: kebab_city_tour/node_modules
-          key: ${{ runner.os }}-npm-dependencies-${{ hashFiles('kebab_city_tour/package.lock') }}
+          path: frontend/node_modules
+          key: ${{ runner.os }}-npm-dependencies-${{ hashFiles('frontend/package.lock') }}
           restore-keys: ${{ runner.os }}-npm-dependencies
 
       - name: Set up node
@@ -37,13 +37,13 @@ jobs:
         run: ls -R
 
       - name: Install npm dependencies with legacy-peer-deps
-        working-directory: kebab_city_tour
+        working-directory: frontend
         run: npm install --legacy-peer-deps
 
       - name: Check dependency versions
-        working-directory: kebab_city_tour
+        working-directory: frontend
         run: npm ls
 
       - name: Run JS linter
-        working-directory: kebab_city_tour
+        working-directory: frontend
         run: npm run lint
