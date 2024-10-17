@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 
 export default function Register({ toggleForm }) {
   return (
@@ -35,5 +35,5 @@ export default function Register({ toggleForm }) {
         </a>
       </p>
     </form>
-  );
+  )
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 
 export default function Login({ toggleForm }) {
   return (
@@ -29,5 +29,5 @@ export default function Login({ toggleForm }) {
         </a>
       </p>
     </form>
-  );
+  )
 }
