@@ -6,9 +6,9 @@ export default function Header() {
   const navigate = useNavigate()
 
   return (
-    <header className="bg-yellow-600 h-24 flex items-center justify-between px-4 relative">
+    <header className="bg-[#283618] h-24 flex items-center justify-between px-4 relative">
       <button
-        className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        className="bg-[#606C38] text-white py-2 px-4 rounded hover:bg-[#BC6C25] focus:outline-none focus:ring-2 focus:ring-[#DDA15E]"
         onClick={() => navigate('/')}
       >
         Powrót do strony głównej
