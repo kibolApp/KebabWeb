@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
-import '../index.css';
-import Header from '../components/Header.js';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react'
+import '../index.css'
+import Header from '../components/Header.js'
 
 export default function LoginPage() {
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false)
 
   const toggleForm = (event) => {
-    event.preventDefault();
-    setIsSignUp(!isSignUp);
-  };
+    event.preventDefault()
+    setIsSignUp(!isSignUp)
+  }
 
   const loginForm = (
     <form className={`w-full max-w-md mx-auto bg-white p-8 rounded-lg shadow-md transition-opacity duration-500 ease-in-out ${isSignUp ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}> 
@@ -39,7 +38,7 @@ export default function LoginPage() {
         </a>
       </p>
     </form>
-  );
+  )
 
   const registerForm = (
     <form className={`w-full max-w-md mx-auto bg-white p-8 rounded-lg shadow-md transition-opacity duration-500 ease-in-out ${isSignUp ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}> 
@@ -75,17 +74,17 @@ export default function LoginPage() {
         </a>
       </p>
     </form>
-  );
+  )
 
   return (
     <div>
       <Header />
       <section className="flex justify-center items-center py-8 bg-gray-100 min-h-screen">
-        <div className="container flex justify-center items-center transition-all duration-500 ease-in-out transform"
-             style={{ marginTop: '-100px' }}>
+        <div className="container flex justify-center items-center transition-all duration-500 ease-in-out"
+          style={{ marginTop: '-100px' }}>
           {isSignUp ? registerForm : loginForm}
         </div>
       </section>
     </div>
-  );
+  )
 }
