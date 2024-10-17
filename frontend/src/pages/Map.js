@@ -1,6 +1,6 @@
 import React from 'react'
 import '../index.css'
-import Header from '../components/Header'
+import Header from '../components/Header.js'
 import { MapContainer, TileLayer } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 
