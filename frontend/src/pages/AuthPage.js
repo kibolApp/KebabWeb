@@ -5,6 +5,7 @@ import kebab1 from '../img/kebab1.jpg'
 import kebab2 from '../img/kebab2.jpg'
 import Login from '../components/Login.js'
 import Register from '../components/Register.js'
+import Footer from '../components/Footer.js'
 
 export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -16,7 +17,7 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen bg-[#D8D9CE]">
       <Header />
-      <section className="flex justify-center items-start min-h-screen mt-16">
+      <section className="flex justify-center items-start min-h-screen mt-16 overflow-hidden">
         <div className="relative w-[800px] h-[500px] grid grid-cols-2 grid-rows-2 transition-all duration-1000 ease-in-out transform-gpu">
           <div className={`absolute top-0 left-0 w-1/2 h-full ${isSignUp ? 'opacity-0 pointer-events-none scale-90' : 'opacity-100 scale-100'} transition-all duration-1000`}>
             <img
@@ -43,6 +44,8 @@ export default function AuthPage() {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   )
 }
