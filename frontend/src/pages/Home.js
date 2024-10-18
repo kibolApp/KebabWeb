@@ -1,6 +1,7 @@
 import '../index.css'
 import kebab_logo from '../img/kebab_logo.png'
 import { useNavigate } from 'react-router-dom'
+import Footer from '../components/Footer.js'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -35,6 +36,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   )
 }

@@ -3,6 +3,7 @@ import '../index.css'
 import Header from '../components/Header.js'
 import { MapContainer, TileLayer } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
+import Footer from '../components/Footer.js'
 
 export default function Map() {
   const legnicaBounds = [
@@ -34,6 +35,7 @@ export default function Map() {
           <p className="text-xl">LISTA / TABELA</p>
         </div>
       </main>
+      <Footer />
     </div>
   )
 }
