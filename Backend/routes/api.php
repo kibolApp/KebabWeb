@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\KebabController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -22,8 +23,15 @@ Route::middleware("auth:sanctum")->get("/user", fn(Request $request) => $request
 
 Route::post("/register", [AuthController::class, "register"]);
 Route::post("/login", [AuthController::class, "login"]);
-
+Route::post("/kebabs", [KebabController::class, "getAllKebabs"]);
+Route::get("/fav/{id}", [UserController::class, "getUserFavorites"]);
+Route::get("/addfav", [UserController::class, "addToFavorites"]);
+Route::get("/remfav", [UserController::class, "removeFromFavorites"]);
 Route::middleware("auth:sanctum")->group(function (): void {
     Route::post("/logout", [AuthController::class, "logout"]);
     Route::get("/getCurrentUser", [UserController::class, "getCurrentUser"]);
+});
+
+Route::group(["middleware" => ["admin"]], function (): void {
+    Route::get("/admin");
 });
