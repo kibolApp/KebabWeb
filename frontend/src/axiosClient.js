@@ -1,28 +1,28 @@
-import axios from 'axios';
+import axios from 'axios'
 
 const axiosClient = axios.create({
   baseURL: 'https://sponge-climbing-adder.ngrok-free.app/api',
-});
+})
 
 axiosClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('authToken');
+  const token = localStorage.getItem('authToken')
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${token}`
   }
-  return config;
-});
+  return config
+})
 
 axiosClient.interceptors.response.use(
   (response) => {
-    return response;
+    return response
   },
   (error) => {
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem('authToken');
-      window.location.href = '/login';
+      localStorage.removeItem('authToken')
+      window.location.href = '/login'
     }
-    return Promise.reject(error);
-  }
-);
+    return Promise.reject(error)
+  },
+)
 
-export default axiosClient;
+export default axiosClient

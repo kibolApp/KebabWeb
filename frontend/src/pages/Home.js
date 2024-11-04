@@ -3,24 +3,24 @@ import kebab_logo from '../img/kebab_logo.png'
 import { useNavigate } from 'react-router-dom'
 import Footer from '../components/Footer.js'
 import { useEffect, useState } from 'react'
-import 'react-toastify/dist/ReactToastify.css';
-import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default function Home() {
   const navigate = useNavigate()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('authToken')
     if (token) {
-      setIsLoggedIn(true);
+      setIsLoggedIn(true)
     }
   }, [])
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    setIsLoggedIn(false);
-    toast.success('Wylogowano pomyślnie!', { autoClose: 2000 });
+    localStorage.removeItem('authToken')
+    setIsLoggedIn(false)
+    toast.success('Wylogowano pomyślnie!', { autoClose: 2000 })
   }
 
   return (
