@@ -2,9 +2,24 @@ import '../index.css'
 import kebab_logo from '../img/kebab_logo.png'
 import { useNavigate } from 'react-router-dom'
 import Footer from '../components/Footer.js'
+import { useEffect, useState } from 'react'
 
 export default function Home() {
   const navigate = useNavigate()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    setIsLoggedIn(false);
+    toast.success('Wylogowano pomyślnie!', { autoClose: 2000 });
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100" style={{ fontFamily: 'Poppins, sans-serif' }}>
@@ -27,16 +42,24 @@ export default function Home() {
             >
               MAPA
             </button>
-            <button 
-              className="bg-[#606C38] text-white py-6 px-12 rounded-lg hover:bg-[#283618] focus:outline-none focus:ring-2 focus:ring-[#283618] text-xl"
-              onClick={() => navigate('/auth')}
-            >
-              LOGOWANIE
-            </button>
+            {isLoggedIn ? (
+              <button 
+                className="bg-[#606C38] text-white py-6 px-12 rounded-lg hover:bg-[#283618] focus:outline-none focus:ring-2 focus:ring-[#283618] text-xl"
+                onClick={handleLogout}
+              >
+                WYLOGUJ
+              </button>
+            ) : (
+              <button 
+                className="bg-[#606C38] text-white py-6 px-12 rounded-lg hover:bg-[#283618] focus:outline-none focus:ring-2 focus:ring-[#283618] text-xl"
+                onClick={() => navigate('/auth')}
+              >
+                LOGOWANIE
+              </button>
+            )}
           </div>
         </div>
       </div>
       <Footer />
     </div>
-  )
-}
+  )}
