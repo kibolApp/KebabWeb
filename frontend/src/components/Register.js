@@ -3,12 +3,14 @@ import '../index.css';
 import axiosClient from '../axiosClient.js';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 export default function Register({ toggleForm }) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -28,10 +30,11 @@ export default function Register({ toggleForm }) {
         setTimeout(() => navigate('/map'), 2000);
       }
     } catch (error) {
+      console.error('Error registering:', error.response ? error.response : error);
       if (error.response && error.response.data && error.response.data.errors) {
         toast.error(`Błąd serwera: ${error.response.data.message}`, { autoClose: 2000 });
       } else {
-        toast.error('Błąd podczas rejestracji. Sprawdź swoje dane.', { autoClose: 2000 });
+        toast.error('Błąd podczas rejestracji.', { autoClose: 2000 });
       }
     }
   };

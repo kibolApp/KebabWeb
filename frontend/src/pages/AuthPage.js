@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Header from '../components/Header.js'
 import '../index.css'
 import kebab1 from '../img/kebab1.jpg'
@@ -6,13 +6,22 @@ import kebab2 from '../img/kebab2.jpg'
 import Login from '../components/Login.js'
 import Register from '../components/Register.js'
 import Footer from '../components/Footer.js'
+import { useNavigate } from 'react-router-dom';
 
 export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false)
+  const navigate = useNavigate();
 
   const toggleForm = () => {
     setIsSignUp(!isSignUp)
   }
+
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      navigate('/map');
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#D8D9CE]">
