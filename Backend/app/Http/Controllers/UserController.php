@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\FavoriteKebabRequest;
 use App\Http\Requests\ChangeEmailRequest;
 use App\Http\Requests\ChangeNameRequest;
 use App\Http\Requests\ChangePasswordRequest;
+use App\Http\Requests\FavoriteKebabRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -140,7 +140,7 @@ class UserController extends Controller
                 return response()->json(["message" => "Kebab added to favorites"]);
             }
 
-            return response()->json(["message" => "Kebab is already in favorites"]);
+            return response()->json(["message" => "Kebab is already in favorites"], 400);
         }
 
         return response()->json(["error" => "User not found"], 404);
@@ -164,7 +164,7 @@ class UserController extends Controller
                 return response()->json(["message" => "Kebab removed from favorites"]);
             }
 
-            return response()->json(["message" => "Kebab not found in favorites"]);
+            return response()->json(["message" => "Kebab not found in favorites"], 400);
         }
 
         return response()->json(["error" => "User not found"], 404);
