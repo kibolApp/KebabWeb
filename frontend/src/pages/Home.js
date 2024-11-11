@@ -34,7 +34,7 @@ export default function Home() {
           <h1 className="text-3xl md:text-5xl lg:text-7xl font-semibold text-center text-[#283618] mb-6 md:mb-8 lg:mb-10">
             LEGNICA KEBAB CITY TOUR
           </h1>
-          <p className="text-[#283618] text-center mb-10 md:mb-12 lg:mb-16 text-base md:text-lg lg:text-xl">
+          <p className="text-[#283618] text-center mb-10 md:mb-12 lg:mb-16 text-base sm:text-xs md:text-lg lg:text-xl">
             Legnica Kebab City Tour jest to aplikacja oraz witryna internetowa służąca pomocą w odnalezieniu lokalizacji wszystkich dostępnych, w planach oraz zamkniętych punktów gastronomicznych serwujących słynne Kebaby. Poniższe przyciski pokierują Cię dalej. Wybierz przycisk "Mapa" aby bezpośrednio odnaleźć Kebaby rozsiane po Legnicy. Możesz też utworzyć konto lub zalogować się aby dodać Twojego ulubionego Kebaba do zakładki "Ulubione", dzięki czemu łatwiej go odnajdziesz!!
           </p>
           <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-10">
