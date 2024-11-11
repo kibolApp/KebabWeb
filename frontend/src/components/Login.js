@@ -51,21 +51,21 @@ export default function Login({ toggleForm }) {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button type="submit" className="w-full p-3 md:p-4 bg-[#283618] text-white rounded-md hover:bg-[#606C38] transition text-sm md:text-base">
-      Zaloguj się
+        <button type="submit" className="w-full p-3 md:p-4 bg-darkGreen text-white rounded-md hover:bg-oliveGreen transition text-sm md:text-base">
+          Zaloguj się
         </button>
       </form>
       <p className="text-center mt-3 md:mt-4 text-sm md:text-base">
-    Nie masz jeszcze konta?{' '}
-        <a href="#" onClick={toggleForm} className="text-[#283618] underline">
-      Zarejestruj się.
+        Nie masz jeszcze konta?{' '}
+        <a href="#" onClick={toggleForm} className="text-darkGreen underline">
+          Zarejestruj się.
         </a>
       </p>
       <ToastContainer />
     </div>
-
   )
 }
-  Login.propTypes = {
-    toggleForm: PropTypes.func.isRequired,
-  };
+
+Login.propTypes = {
+  toggleForm: PropTypes.func.isRequired,
+};

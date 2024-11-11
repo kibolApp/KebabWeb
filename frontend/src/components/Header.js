@@ -25,9 +25,9 @@ export default function Header() {
   }, [])
 
   return (
-    <header className="bg-[#283618] h-20 md:h-24 flex items-center justify-between px-4 relative">
+    <header className="bg-darkGreen h-20 md:h-24 flex items-center justify-between px-4 relative">
       <button
-        className="bg-[#606C38] text-white py-1 px-3 md:py-2 md:px-4 rounded text-sm md:text-base hover:bg-[#BC6C25] focus:outline-none focus:ring-2 focus:ring-[#DDA15E]"
+        className="bg-oliveGreen text-white py-1 px-3 md:py-2 md:px-4 rounded text-sm md:text-base hover:bg-brown focus:outline-none focus:ring-2 focus:ring-gold"
         onClick={() => navigate('/')}
       >
         {buttonText}

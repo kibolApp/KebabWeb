@@ -24,7 +24,7 @@ export default function AuthPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#D8D9CE]">
+    <div className="min-h-screen bg-lightGray">
       <Header />
       <section className="flex justify-center items-start min-h-screen mt-16 overflow-hidden">
         <div className="relative w-full max-w-[800px] h-auto md:h-[500px] grid grid-cols-1 md:grid-cols-2 transition-all duration-1000 ease-in-out transform-gpu">
@@ -52,7 +52,6 @@ export default function AuthPage() {
             />
           </div>
         </div>
-
       </section>
 
       <Footer />

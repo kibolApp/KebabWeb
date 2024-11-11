@@ -29,7 +29,7 @@ export default function Register({ toggleForm }) {
         password_confirmation: passwordConfirmation,
       })
       if (response.status === 200) {
-        toast.success('Rejestracja zakończona sukcesem!' , { autoClose: 2000 })
+        toast.success('Rejestracja zakończona sukcesem!', { autoClose: 2000 })
         login(response.data.token)
         setTimeout(() => navigate('/map'), 2000)
       }
@@ -79,21 +79,21 @@ export default function Register({ toggleForm }) {
           onChange={(e) => setPasswordConfirmation(e.target.value)}
           required
         />
-        <button type="submit" className="w-full p-3 md:p-4 bg-[#283618] text-white rounded-md hover:bg-[#606C38] transition text-sm md:text-base">
-      Zarejestruj się
+        <button type="submit" className="w-full p-3 md:p-4 bg-darkGreen text-white rounded-md hover:bg-oliveGreen transition text-sm md:text-base">
+          Zarejestruj się
         </button>
       </form>
       <p className="text-center mt-3 md:mt-4 text-sm md:text-base">
-    Posiadasz już konto?{' '}
-        <a href="#" onClick={toggleForm} className="text-[#283618] underline">
-      Zaloguj się.
+        Posiadasz już konto?{' '}
+        <a href="#" onClick={toggleForm} className="text-darkGreen underline">
+          Zaloguj się.
         </a>
       </p>
       <ToastContainer />
     </div>
-
   )
 }
-  Register.propTypes = {
-    toggleForm: PropTypes.func.isRequired,
-  };
+
+Register.propTypes = {
+  toggleForm: PropTypes.func.isRequired,
+};
