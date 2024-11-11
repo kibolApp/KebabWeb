@@ -1,22 +1,24 @@
-import React, { useState } from 'react'
-import '../index.css'
-import axiosClient from '../axiosClient.js'
-import { toast, ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-import { useNavigate } from 'react-router-dom'
+import React, { useState } from 'react';
+import '../index.css';
+import axiosClient from '../axiosClient.js';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
+import { useAppContext } from '../ContextProvider.js';
 
 export default function Register({ toggleForm }) {
-  const [username, setUsername] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [passwordConfirmation, setPasswordConfirmation] = useState('')
-  const navigate = useNavigate()
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const navigate = useNavigate();
+  const { login } = useAppContext();
 
   const handleRegister = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (password !== passwordConfirmation) {
-      toast.error('Hasła nie są zgodne.')
-      return
+      toast.error('Hasła nie są zgodne.');
+      return;
     }
     try {
       const response = await axiosClient.post('/register', {
@@ -24,20 +26,21 @@ export default function Register({ toggleForm }) {
         email,
         password,
         password_confirmation: passwordConfirmation,
-      })
+      });
       if (response.status === 200) {
-        toast.success('Rejestracja zakończona sukcesem!' , { autoClose: 2000 })
-        setTimeout(() => navigate('/map'), 2000)
+        toast.success('Rejestracja zakończona sukcesem!' , { autoClose: 2000 });
+        login(response.data.token);
+        setTimeout(() => navigate('/map'), 2000);
       }
     } catch (error) {
-      console.error('Error registering:', error.response ? error.response : error)
+      console.error('Error registering:', error.response ? error.response : error);
       if (error.response && error.response.data && error.response.data.errors) {
-        toast.error(`Błąd serwera: ${error.response.data.message}`, { autoClose: 2000 })
+        toast.error(`Błąd serwera: ${error.response.data.message}`, { autoClose: 2000 });
       } else {
-        toast.error('Błąd podczas rejestracji.', { autoClose: 2000 })
+        toast.error('Błąd podczas rejestracji.', { autoClose: 2000 });
       }
     }
-  }
+  };
 
   return (
     <div className="absolute bottom-0 left-0 w-1/2 h-full bg-white p-8 rounded-lg shadow-md transition-opacity duration-1000 ease-in-out delay-300">
@@ -87,5 +90,5 @@ export default function Register({ toggleForm }) {
       </p>
       <ToastContainer />
     </div>
-  )
+  );
 }
