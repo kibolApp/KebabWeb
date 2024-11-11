@@ -27,24 +27,24 @@ export default function AuthPage() {
     <div className="min-h-screen bg-[#D8D9CE]">
       <Header />
       <section className="flex justify-center items-start min-h-screen mt-16 overflow-hidden">
-        <div className="relative w-[800px] h-[500px] grid grid-cols-2 grid-rows-2 transition-all duration-1000 ease-in-out transform-gpu">
-          <div className={`absolute top-0 left-0 w-1/2 h-full ${isSignUp ? 'opacity-0 pointer-events-none scale-90' : 'opacity-100 scale-100'} transition-all duration-1000`}>
+        <div className="relative w-full max-w-[800px] h-auto md:h-[500px] grid grid-cols-1 md:grid-cols-2 transition-all duration-1000 ease-in-out transform-gpu">
+          <div className={`absolute top-0 left-0 w-full md:w-1/2 h-[300px] md:h-full ${isSignUp ? 'opacity-0 pointer-events-none scale-90' : 'opacity-100 scale-100'} transition-all duration-1000 hidden md:block`}>
             <img
               src={kebab1}
               alt="Kebab Sign In"
               className="size-full object-cover rounded-lg shadow-lg"
             />
           </div>
-          
+
           {!isSignUp && (
-            <Login toggleForm={toggleForm} />
+            <Login toggleForm={toggleForm} className="w-full md:w-auto" />
           )}
-          
+
           {isSignUp && (
-            <Register toggleForm={toggleForm} />
+            <Register toggleForm={toggleForm} className="w-full md:w-auto" />
           )}
-          
-          <div className={`absolute bottom-0 right-0 w-1/2 h-full ${isSignUp ? 'opacity-100 scale-100' : 'opacity-0 pointer-events-none scale-90'} transition-all duration-1000`}>
+
+          <div className={`absolute bottom-0 right-0 w-full md:w-1/2 h-[300px] md:h-full ${isSignUp ? 'opacity-100 scale-100' : 'opacity-0 pointer-events-none scale-90'} transition-all duration-1000 hidden md:block`}>
             <img
               src={kebab2}
               alt="Kebab Sign Up"
@@ -52,6 +52,7 @@ export default function AuthPage() {
             />
           </div>
         </div>
+
       </section>
 
       <Footer />

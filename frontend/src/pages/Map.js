@@ -15,8 +15,8 @@ export default function Map() {
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
-      <main className="flex h-[calc(100vh-6rem)] px-4 py-2">
-        <div className="bg-gray-300 w-[73%] h-full mr-2 flex items-center justify-center">
+      <main className="flex flex-col lg:flex-row h-[calc(100vh-6rem)] px-4 py-2">
+        <div className="bg-gray-300 w-full lg:w-[73%] h-64 lg:h-full mb-4 lg:mb-0 lg:mr-2 flex items-center justify-center">
           <MapContainer 
             bounds={legnicaBounds} 
             className="size-full rounded-lg shadow-lg"
@@ -31,8 +31,8 @@ export default function Map() {
             />
           </MapContainer>
         </div>
-        <div className="w-[24%] h-full flex items-center justify-center text-center">
-          <p className="text-xl">LISTA / TABELA</p>
+        <div className="w-full lg:w-[24%] h-24 lg:h-full flex items-center justify-center text-center bg-white p-4 rounded-lg shadow-md">
+          <p className="text-lg lg:text-xl">LISTA / TABELA</p>
         </div>
       </main>
       <Footer />
