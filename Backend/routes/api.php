@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KebabController;
+use App\Http\Controllers\SuggestionsController;
 use App\Http\Controllers\UserController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,8 +18,6 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
-Route::middleware("auth:sanctum")->get("/user", fn(Request $request) => $request->user());
 
 Route::post("/register", [AuthController::class, "register"]);
 Route::post("/login", [AuthController::class, "login"]);
@@ -37,11 +35,11 @@ Route::middleware("auth:sanctum")->group(function (): void {
     Route::post("/suggestions", [SuggestionsController::class, "createSuggestion"]);
 });
 
-Route::group(["middleware" => ["admin"]], function (): void {
+Route::group(["middleware" => ["checkAdmin"]], function (): void {
     Route::get("/getAllUsers", [UserController::class, "getAllUsers"]);
     Route::post("/addNewUser", [UserController::class, "addNewUser"]);
-    Route::get("/kebabs", [KebabController::class, "getAllKebabs"]);
-    Route::post("/kebabs", [KebabController::class, "addKebab"]);
+    Route::get("/getKebabs", [KebabController::class, "getAllKebabs"]);
+    Route::post("/addKebab", [KebabController::class, "addKebab"]);
     Route::delete("/kebabs/{id}", [KebabController::class, "deleteKebab"]);
     Route::put("/kebabs/{kebabId}/logo", [KebabController::class, "changeKebabLogo"]);
     Route::put("/kebabs/{kebabId}/name", [KebabController::class, "changeKebabName"]);

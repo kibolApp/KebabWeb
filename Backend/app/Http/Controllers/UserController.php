@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ChangeEmailRequest;
-use App\Http\Requests\ChangeNameRequest;
-use App\Http\Requests\ChangePasswordRequest;
-use App\Http\Requests\FavoriteKebabRequest;
-use App\Http\Requests\UserRequest;
+use App\Http\Requests\UserRequests\ChangeEmailRequest;
+use App\Http\Requests\UserRequests\ChangeNameRequest;
+use App\Http\Requests\UserRequests\ChangePasswordRequest;
+use App\Http\Requests\UserRequests\FavoriteKebabRequest;
+use App\Http\Requests\UserRequests\UserRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;

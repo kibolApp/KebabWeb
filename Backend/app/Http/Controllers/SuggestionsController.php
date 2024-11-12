@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SuggestionRequest;
 use App\Models\Suggestions;
-use Illuminate\Http\Request;
 
 class SuggestionsController extends Controller
 {
-    public function createSuggestion(Request $request)
+    public function createSuggestion(SuggestionRequest $request)
     {
         $request->validate([
             "user" => "required|string|max:255",

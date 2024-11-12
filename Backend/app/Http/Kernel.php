@@ -14,7 +14,6 @@ use App\Http\Middleware\ValidateSignature;
 use App\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Auth\Middleware\Authorize;
-use Illuminate\Auth\Middleware\CheckAdmin;
 use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
 use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -80,7 +79,7 @@ class Kernel extends HttpKernel
      */
     protected $middlewareAliases = [
         "auth" => Authenticate::class,
-        "admin" => CheckAdmin::class,
+        "checkAdmin" => Middleware\CheckAdmin::class,
         "auth.basic" => AuthenticateWithBasicAuth::class,
         "auth.session" => AuthenticateSession::class,
         "cache.headers" => SetCacheHeaders::class,
