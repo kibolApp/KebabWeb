@@ -1,40 +1,69 @@
 import '../index.css'
 import kebab_logo from '../img/kebab_logo.png'
 import { useNavigate } from 'react-router-dom'
+import Footer from '../components/Footer.js'
+import { useEffect, useState } from 'react'
+import 'react-toastify/dist/ReactToastify.css'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default function Home() {
   const navigate = useNavigate()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    const token = localStorage.getItem('authToken')
+    if (token) {
+      setIsLoggedIn(true)
+    }
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken')
+    setIsLoggedIn(false)
+    toast.success('Wylogowano pomyślnie!', { autoClose: 2000 })
+  }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100" style={{ fontFamily: 'Poppins, sans-serif' }}>
+    <div className="flex flex-col min-h-screen bg-lightGrayish" style={{ fontFamily: 'Poppins, sans-serif' }}>
       <header className="h-36"></header>
-      <div className="flex items-center justify-center grow">
-        <div className="bg-gradient-to-b from-orange-300 to-white-100 p-32 rounded-lg shadow-2xl w-full max-w-7xl relative mx-12 mb-16">
+      <div className="flex items-center justify-center grow px-4 md:px-12">
+        <div className="bg-gradient-to-b from-gold to-white p-8 md:p-16 lg:p-32 rounded-lg shadow-2xl w-full max-w-7xl relative mb-16">
           <div className="flex justify-center mb-12">
-            <img src={kebab_logo} alt="Legnica Kebab Logo" className="h-72 absolute -top-32" />
+            <img src={kebab_logo} alt="Legnica Kebab Logo" className="h-32 md:h-48 lg:h-72 absolute -top-16 md:-top-24 lg:-top-32" />
           </div>
-          <h1 className="text-7xl font-semibold text-center text-gray-800 mb-10">
+          <h1 className="text-3xl md:text-5xl lg:text-7xl font-semibold text-center text-darkGreen mb-6 md:mb-8 lg:mb-10">
             LEGNICA KEBAB CITY TOUR
           </h1>
-          <p className="text-gray-600 text-center mb-16 text-xl">
+          <p className="text-darkGreen text-center mb-10 md:mb-12 lg:mb-16 text-base sm:text-xs md:text-lg lg:text-xl">
             Legnica Kebab City Tour jest to aplikacja oraz witryna internetowa służąca pomocą w odnalezieniu lokalizacji wszystkich dostępnych, w planach oraz zamkniętych punktów gastronomicznych serwujących słynne Kebaby. Poniższe przyciski pokierują Cię dalej. Wybierz przycisk "Mapa" aby bezpośrednio odnaleźć Kebaby rozsiane po Legnicy. Możesz też utworzyć konto lub zalogować się aby dodać Twojego ulubionego Kebaba do zakładki "Ulubione", dzięki czemu łatwiej go odnajdziesz!!
           </p>
-          <div className="flex justify-center space-x-10">
+          <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-10">
             <button 
-              className="bg-blue-500 text-white py-6 w-40 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 text-xl"
+              className="bg-oliveGreen text-white py-4 md:py-6 px-8 md:w-40 rounded-lg hover:bg-darkGreen focus:outline-none focus:ring-2 focus:ring-darkGreen text-lg md:text-xl"
               onClick={() => navigate('/map')}
             >
               MAPA
             </button>
-            <button 
-              className="bg-blue-500 text-white py-6 px-12 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 text-xl"
-              onClick={() => navigate('/login')}
-            >
-              LOGOWANIE
-            </button>
+            {isLoggedIn ? (
+              <button 
+                className="bg-oliveGreen text-white py-4 md:py-6 px-8 md:px-12 rounded-lg hover:bg-darkGreen focus:outline-none focus:ring-2 focus:ring-darkGreen text-lg md:text-xl"
+                onClick={handleLogout}
+              >
+                WYLOGUJ
+              </button>
+            ) : (
+              <button 
+                className="bg-oliveGreen text-white py-4 md:py-6 px-8 md:px-12 rounded-lg hover:bg-darkGreen focus:outline-none focus:ring-2 focus:ring-darkGreen text-lg md:text-xl"
+                onClick={() => navigate('/auth')}
+              >
+                LOGOWANIE
+              </button>
+            )}
           </div>
         </div>
       </div>
+      <Footer />
+      <ToastContainer />
     </div>
   )
 }
