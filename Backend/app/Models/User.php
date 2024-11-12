@@ -47,4 +47,12 @@ class User extends Authenticatable
         "email_verified_at" => "datetime",
         "password" => "hashed",
     ];
+
+    /**
+     * Check if the user is an admin.
+     */
+    public function is_admin(): bool
+    {
+        return $this->isAdmin;
+    }
 }
