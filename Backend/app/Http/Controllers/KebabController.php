@@ -7,11 +7,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\KebabRequests\KebabRequest;
 use App\Models\Kebab;
 use Exception;
+use Illuminate\Http\Request;
 
 class KebabController extends Controller
 {
     public function getAllKebabs()
     {
+        $this->ensureAdmin();
+
         try {
             $data = Kebab::all()->map(function ($kebab) {
                 $kebab->logo = $kebab->logo ? "data:image/jpeg;base64," . base64_encode($kebab->logo) : null;
@@ -30,6 +33,7 @@ class KebabController extends Controller
 
     public function addKebab(KebabRequest $request)
     {
+        $this->ensureAdmin();
         $data = $request->validated();
 
         try {
@@ -51,6 +55,7 @@ class KebabController extends Controller
 
     public function deleteKebab($id)
     {
+        $this->ensureAdmin();
         $kebab = Kebab::find($id);
 
         if (!$kebab) {
@@ -64,6 +69,8 @@ class KebabController extends Controller
 
     public function changeKebabLogo(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
+
         try {
             $kebab = Kebab::findOrFail($kebabId);
 
@@ -91,6 +98,7 @@ class KebabController extends Controller
 
     public function changeKebabName(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "name" => "required",
         ]);
@@ -116,6 +124,7 @@ class KebabController extends Controller
 
     public function changeKebabAddress(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "address" => "required|string|max:255",
         ]);
@@ -141,6 +150,7 @@ class KebabController extends Controller
 
     public function changeKebabCoordinates(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "coordinates" => "required|array",
         ]);
@@ -148,7 +158,7 @@ class KebabController extends Controller
         try {
             $kebab = Kebab::findOrFail($kebabId);
 
-            $kebab->coordinates = json_encode($request->input("coordinates"));
+            $kebab->coordinates = $request->input("coordinates");
 
             $kebab->save();
 
@@ -166,6 +176,7 @@ class KebabController extends Controller
 
     public function addSauceToKebab(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "sauce" => "required|string",
         ]);
@@ -179,7 +190,7 @@ class KebabController extends Controller
                 $sauces[] = $request->input("sauce");
             }
 
-            $kebab->sauces = json_encode($sauces);
+            $kebab->sauces = $sauces;
             $kebab->save();
 
             return response()->json([
@@ -196,6 +207,7 @@ class KebabController extends Controller
 
     public function removeSauceFromKebab(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "sauce" => "required|string",
         ]);
@@ -226,6 +238,7 @@ class KebabController extends Controller
 
     public function addMeatToKebab(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "meat" => "required|string",
         ]);
@@ -256,6 +269,7 @@ class KebabController extends Controller
 
     public function removeMeatFromKebab(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "meat" => "required|string",
         ]);
@@ -286,6 +300,7 @@ class KebabController extends Controller
 
     public function changeKebabStatus(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "status" => "required|in:exists,closed,planned",
         ]);
@@ -311,6 +326,7 @@ class KebabController extends Controller
 
     public function addOpeningHour(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "day" => "required|string|in:monday,tuesday,wednesday,thursday,friday,saturday,sunday",
             "hours" => "required|string",
@@ -340,6 +356,7 @@ class KebabController extends Controller
 
     public function removeOpeningHour(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "day" => "required|string|in:monday,tuesday,wednesday,thursday,friday,saturday,sunday",
         ]);
@@ -370,6 +387,7 @@ class KebabController extends Controller
 
     public function changeOpeningHour(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "day" => "required|string|in:monday,tuesday,wednesday,thursday,friday,saturday,sunday", 
             "hours" => "required|string",
@@ -399,6 +417,7 @@ class KebabController extends Controller
 
     public function updateOpeningYear(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "opening_year" => "nullable|integer|digits:4",
         ]);
@@ -424,6 +443,7 @@ class KebabController extends Controller
 
     public function updateClosingYear(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "closing_year" => "nullable|integer|digits:4",
         ]);
@@ -449,6 +469,7 @@ class KebabController extends Controller
 
     public function updateIsCrafted(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "is_crafted" => "nullable|boolean",
         ]);
@@ -474,6 +495,7 @@ class KebabController extends Controller
 
     public function updateIsPremises(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "is_premises" => "nullable|boolean",
         ]);
@@ -499,6 +521,7 @@ class KebabController extends Controller
 
     public function updateIsChainstore(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "is_chainstore" => "nullable|boolean",
         ]);
@@ -524,6 +547,7 @@ class KebabController extends Controller
 
     public function addOrderingOption(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "new_option" => "required|string",
         ]);
@@ -553,6 +577,7 @@ class KebabController extends Controller
 
     public function removeOrderingOption(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "option_to_remove" => "required|string",
         ]);
@@ -582,6 +607,7 @@ class KebabController extends Controller
 
     public function addComment(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "id_user" => "required|integer", 
             "comment" => "required|string",
@@ -617,6 +643,7 @@ class KebabController extends Controller
 
     public function removeComment(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "id_user" => "required|integer", 
             "comment" => "required|string",
@@ -647,6 +674,7 @@ class KebabController extends Controller
 
     public function updateGoogleReviews(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $request->validate([
             "google_reviews" => "nullable|numeric|between:0,99.9",
         ]);
@@ -674,6 +702,7 @@ class KebabController extends Controller
 
     public function updatePyszneplReviews(Request $request, $kebabId)
     {
+        $this->ensureAdmin();
         $kebab = Kebab::findOrFail($kebabId);
         $kebab->pysznepl_reviews = $request->input("pysznepl_reviews");
         $kebab->save();
@@ -683,8 +712,18 @@ class KebabController extends Controller
 
     public function getPyszneplReviews($kebabId)
     {
+        $this->ensureAdmin();
         $kebab = Kebab::findOrFail($kebabId);
 
         return response()->json(["pysznepl_reviews" => $kebab->pysznepl_reviews]);
+    }
+
+    private function ensureAdmin()
+    {
+        if (!Auth::user() || !Auth::user()->is_admin) {
+            return response()->json([
+                "error" => "Unauthorized access. Admin rights required.",
+            ], 403);
+        }
     }
 }

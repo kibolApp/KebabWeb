@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Route;
 Route::post("/register", [AuthController::class, "register"]);
 Route::post("/login", [AuthController::class, "login"]);
 Route::get("/kebabs", [KebabController::class, "getAllKebabs"]);
+
 Route::middleware("auth:sanctum")->group(function (): void {
     Route::post("/logout", [AuthController::class, "logout"]);
     Route::get("/getCurrentUser", [UserController::class, "getCurrentUser"]);
@@ -33,10 +34,7 @@ Route::middleware("auth:sanctum")->group(function (): void {
     Route::put("/changePassword/{id}", [UserController::class, "changePassword"]);
     Route::put("/changeEmail/{id}", [UserController::class, "changeEmail"]);
     Route::post("/suggestions", [SuggestionsController::class, "createSuggestion"]);
-});
-
-Route::group(["middleware" => ["checkAdmin"]], function (): void {
-    Route::get("/getAllUsers", [UserController::class, "getAllUsers"]);
+    Route::post("/getAllUsers", [UserController::class, "getAllUsers"]);
     Route::post("/addNewUser", [UserController::class, "addNewUser"]);
     Route::get("/getKebabs", [KebabController::class, "getAllKebabs"]);
     Route::post("/addKebab", [KebabController::class, "addKebab"]);

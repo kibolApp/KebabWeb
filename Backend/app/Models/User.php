@@ -51,8 +51,8 @@ class User extends Authenticatable
     /**
      * Check if the user is an admin.
      */
-    public function is_admin(): bool
+    public function isAdmin(): bool
     {
-        return $this->isAdmin;
+        return (bool)$this->getAttribute("isAdmin");
     }
 }
