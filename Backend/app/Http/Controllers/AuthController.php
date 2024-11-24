@@ -22,7 +22,7 @@ class AuthController extends Controller
             "password" => bcrypt($data["password"]),
             "isAdmin" => false,
         ]);
-        $token = $user->createToken((int)["id" => (string)$user->id])->plainTextToken;
+        $token = $user->createToken("auth_token")->plainTextToken;
 
         $res = [
             "user" => $user,
@@ -39,11 +39,11 @@ class AuthController extends Controller
         if (!Auth::attempt($credentials)) {
             return response([
                 "message" => "Something wrong",
-            ]);
+            ], 400);
         }
         /** @var User $user */
         $user = Auth::user();
-        $token = $user->createToken((int)["id" => (string)$user->id])->plainTextToken;
+        $token = $user->createToken("auth_token")->plainTextToken;
         $res = [
             "user" => $user,
             "token" => $token,

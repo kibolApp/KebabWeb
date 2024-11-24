@@ -15,19 +15,18 @@ return new class() extends Migration {
             $table->string("name");
             $table->string("address"); 
             $table->json("coordinates"); 
-            $table->json("sauces"); 
-            $table->json("meats"); 
+            $table->json("sauces")->nullable(); 
+            $table->json("meats")->nullable(); 
             $table->enum("status", ["exists", "closed", "planned"]); 
-            $table->json("opening_hours"); 
+            $table->json("opening_hours")->nullable(); 
             $table->year("opening_year")->nullable(); 
             $table->year("closing_year")->nullable(); 
             $table->boolean("is_crafted"); 
             $table->boolean("is_premises"); 
             $table->boolean("is_chainstore"); 
-            $table->json("ordering_options"); 
+            $table->json("ordering_options")->nullable(); 
             $table->json("comments")->nullable(); 
-            $table->float("google_reviews", 2, 1)->nullable(); 
-            $table->float("pysznepl_reviews", 2, 1)->nullable(); 
+            $table->json("pages");
             $table->timestamps();
         });
     }
