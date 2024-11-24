@@ -38,8 +38,7 @@ class Kebab extends Model
         "is_chainstore",
         "ordering_options",
         "comments",
-        "google_reviews",
-        "pysznepl_reviews",
+        "pages",
     ];
 
     protected $casts = [

@@ -28,7 +28,6 @@ class UserController extends Controller
 
     public function getAllUsers()
     {
-        $this->ensureAdmin();
         $users = User::all();
 
         return response()->json($users);
@@ -36,7 +35,6 @@ class UserController extends Controller
 
     public function addNewUser(UserRequest $request)
     {
-        $this->ensureAdmin();
         $user = User::create([
             "name" => $request->name,
             "email" => $request->email,
@@ -172,14 +170,5 @@ class UserController extends Controller
         }
 
         return response()->json(["error" => "User not found"], 404);
-    }
-
-    private function ensureAdmin()
-    {
-        if (!Auth::user() || !Auth::user()->is_admin) {
-            return response()->json([
-                "error" => "Unauthorized access. Admin rights required.",
-            ], 403);
-        }
     }
 }

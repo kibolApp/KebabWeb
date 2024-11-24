@@ -29,14 +29,17 @@ Route::middleware("auth:sanctum")->group(function (): void {
     Route::get("/fav/{id}", [UserController::class, "getUserFavorites"]);
     Route::post("/addfav", [UserController::class, "addToFavorites"]);
     Route::post("/remfav", [UserController::class, "removeFromFavorites"]);
-    Route::delete("/deleteUser/{id}", [UserController::class, "deleteUser"]);
     Route::put("/changeName/{id}", [UserController::class, "changeName"]);
     Route::put("/changePassword/{id}", [UserController::class, "changePassword"]);
     Route::put("/changeEmail/{id}", [UserController::class, "changeEmail"]);
     Route::post("/suggestions", [SuggestionsController::class, "createSuggestion"]);
-    Route::post("/getAllUsers", [UserController::class, "getAllUsers"]);
+    Route::get("/suggestions", [SuggestionsController::class, "showAllSuggestions"]);
+});
+
+Route::middleware(["auth:sanctum", "admin"])->group(function (): void {
+    Route::delete("/deleteUser/{id}", [UserController::class, "deleteUser"]);
+    Route::get("/getAllUsers", [UserController::class, "getAllUsers"]);
     Route::post("/addNewUser", [UserController::class, "addNewUser"]);
-    Route::get("/getKebabs", [KebabController::class, "getAllKebabs"]);
     Route::post("/addKebab", [KebabController::class, "addKebab"]);
     Route::delete("/kebabs/{id}", [KebabController::class, "deleteKebab"]);
     Route::put("/kebabs/{kebabId}/logo", [KebabController::class, "changeKebabLogo"]);
@@ -62,6 +65,5 @@ Route::middleware("auth:sanctum")->group(function (): void {
     Route::delete("/kebabs/{kebabId}/comments", [KebabController::class, "removeComment"]);
     Route::put("/kebabs/{kebabId}/google-reviews", [KebabController::class, "updateGoogleReviews"]);
     Route::put("/kebabs/{kebabId}/pysznepl-reviews", [KebabController::class, "updatePyszneplReviews"]);
-    Route::get("/suggestions", [SuggestionsController::class, "showAllSuggestions"]);
     Route::delete("/suggestions/{id}", [SuggestionsController::class, "destroySuggestion"]);
 });
