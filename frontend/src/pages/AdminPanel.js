@@ -14,21 +14,16 @@ export default function AdminPanel() {
   useEffect(() => {
     if (activeTab === 'users') {
       axiosClient
-        .get('getAllUsers')
+        .get('/getAllUsers')
         .then((response) => {
-          console.log('Fetched users:', response); // Dodaj logowanie, aby zobaczyć, co zwraca serwer
-          if (Array.isArray(response.data)) {
-            setUsers(response.data);
-          } else {
-            console.error('Unexpected response format:', response);
-          }
+          setUsers(response.data);
         })
         .catch((error) => {
           console.error('Error fetching users:', error);
         });
     }
   }, [activeTab]);
-
+  
   const openModal = (user) => {
     setSelectedUser({ ...user });
     setIsModalOpen(true);
@@ -228,7 +223,7 @@ export default function AdminPanel() {
           <table className="w-full table-auto bg-white rounded-lg shadow-md">
             <thead className="bg-darkGreen text-white">
               <tr>
-                <th className="px-4 py-2 text-center">Imię i nazwisko</th>
+                <th className="px-4 py-2 text-center">Name</th>
                 <th className="px-4 py-2 text-center">Email</th>
                 <th className="px-4 py-2 text-center">Hasło</th>
                 <th className="px-4 py-2 text-center">Rola</th>
@@ -236,7 +231,7 @@ export default function AdminPanel() {
               </tr>
             </thead>
             <tbody>
-              {Array.isArray(users) && users.map((user)  => (
+              {users.map((user) => (
                 <tr key={user.id} className="border-t text-center">
                   <td className="px-4 py-2">{user.name}</td>
                   <td className="px-4 py-2">{user.email}</td>
