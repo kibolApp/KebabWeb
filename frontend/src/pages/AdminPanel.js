@@ -1,18 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axiosClient from '../axiosClient.js';
 import Header from '../components/Header.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen, faTrash, faEye} from '@fortawesome/free-solid-svg-icons';
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState(null);
-  const [users, setUsers] = useState([
-    { id: 1, name: 'Jan Kowalski', email: 'jan.kowalski@example.com', password: '******', role: 'Admin' },
-    { id: 2, name: 'Anna Nowak', email: 'anna.nowak@example.com', password: '******', role: 'User' },
-    { id: 3, name: 'Piotr Wiśniewski', email: 'piotr.wisniewski@example.com', password: '******', role: 'Editor' },
-  ]);
+  const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === 'users') {
+      axiosClient
+        .get('getAllUsers')
+        .then((response) => {
+          console.log('Fetched users:', response); // Dodaj logowanie, aby zobaczyć, co zwraca serwer
+          if (Array.isArray(response.data)) {
+            setUsers(response.data);
+          } else {
+            console.error('Unexpected response format:', response);
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching users:', error);
+        });
+    }
+  }, [activeTab]);
 
   const openModal = (user) => {
     setSelectedUser({ ...user });
@@ -25,12 +40,41 @@ export default function AdminPanel() {
   };
 
   const saveChanges = () => {
-    setUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user.id === selectedUser.id ? selectedUser : user
-      )
-    );
-    closeModal();
+    const updatedUser = {
+      name: selectedUser.name,
+      email: selectedUser.email,
+      password: selectedUser.password,
+      isAdmin: selectedUser.isAdmin,
+    };
+
+    if (selectedUser.password) {
+      axiosClient
+        .put(`/api/users/${selectedUser.id}/changePassword`, { password: selectedUser.password })
+        .catch((error) => {
+          console.error('Error updating password:', error);
+        });
+    }
+
+    axiosClient
+      .put(`/api/users/${selectedUser.id}/changeName`, { name: selectedUser.name })
+      .then(() => {
+        axiosClient
+          .put(`/api/users/${selectedUser.id}/changeEmail`, { email: selectedUser.email })
+          .then(() => {
+            setUsers((prevUsers) =>
+              prevUsers.map((user) =>
+                user.id === selectedUser.id ? { ...user, ...updatedUser } : user
+              )
+            );
+            closeModal();
+          })
+          .catch((error) => {
+            console.error('Error updating email:', error);
+          });
+      })
+      .catch((error) => {
+        console.error('Error updating name:', error);
+      });
   };
 
   const openDeleteConfirm = (user) => {
@@ -44,8 +88,15 @@ export default function AdminPanel() {
   };
 
   const deleteUser = () => {
-    setUsers((prevUsers) => prevUsers.filter((user) => user.id !== selectedUser.id));
-    closeDeleteConfirm();
+    axiosClient
+      .delete(`/api/users/${selectedUser.id}`)
+      .then(() => {
+        setUsers((prevUsers) => prevUsers.filter((user) => user.id !== selectedUser.id));
+        closeDeleteConfirm();
+      })
+      .catch((error) => {
+        console.error('Error deleting user:', error);
+      });
   };
 
   const [kebabs, setKebabs] = useState([
@@ -172,44 +223,44 @@ export default function AdminPanel() {
         )}
         {/* Tabela users */}
         {activeTab === 'users' && (
-          <div className="w-full">
-            <h1 className="text-2xl font-bold text-darkGreen mb-6">Użytkownicy</h1>
-            <table className="w-full table-auto bg-white rounded-lg shadow-md">
-              <thead className="bg-darkGreen text-white">
-                <tr>
-                  <th className="px-4 py-2 text-center">Imię i nazwisko</th>
-                  <th className="px-4 py-2 text-center">Email</th>
-                  <th className="px-4 py-2 text-center">Hasło</th>
-                  <th className="px-4 py-2 text-center">Rola</th>
-                  <th className="px-4 py-2 text-center">Akcje</th>
+        <div className="w-full">
+          <h1 className="text-2xl font-bold text-darkGreen mb-6">Użytkownicy</h1>
+          <table className="w-full table-auto bg-white rounded-lg shadow-md">
+            <thead className="bg-darkGreen text-white">
+              <tr>
+                <th className="px-4 py-2 text-center">Imię i nazwisko</th>
+                <th className="px-4 py-2 text-center">Email</th>
+                <th className="px-4 py-2 text-center">Hasło</th>
+                <th className="px-4 py-2 text-center">Rola</th>
+                <th className="px-4 py-2 text-center">Akcje</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.isArray(users) && users.map((user)  => (
+                <tr key={user.id} className="border-t text-center">
+                  <td className="px-4 py-2">{user.name}</td>
+                  <td className="px-4 py-2">{user.email}</td>
+                  <td className="px-4 py-2">******</td>
+                  <td className="px-4 py-2">{user.isAdmin ? 'Admin' : 'User'}</td>
+                  <td className="px-4 py-2 flex justify-center space-x-4">
+                    <button
+                      className="text-green-500 hover:text-green-700"
+                      onClick={() => openModal(user)}
+                    >
+                      <FontAwesomeIcon icon={faPen} />
+                    </button>
+                    <button
+                      className="text-red-500 hover:text-red-700"
+                      onClick={() => openDeleteConfirm(user)}
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user.id} className="border-t text-center">
-                    <td className="px-4 py-2">{user.name}</td>
-                    <td className="px-4 py-2">{user.email}</td>
-                    <td className="px-4 py-2">{user.password}</td>
-                    <td className="px-4 py-2">{user.role}</td>
-                    <td className="px-4 py-2 flex justify-center space-x-4">
-                      <button
-                        className="text-green-500 hover:text-green-700"
-                        onClick={() => openModal(user)}
-                      >
-                        <FontAwesomeIcon icon={faPen} />
-                      </button>
-                      <button
-                        className="text-red-500 hover:text-red-700"
-                        onClick={() => openDeleteConfirm(user)}
-                      >
-                        <FontAwesomeIcon icon={faTrash} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
         )}
         {/* Tabela kebabs */}
         {activeTab === 'kebabs' && (
@@ -289,86 +340,98 @@ export default function AdminPanel() {
         )}
 
         {/* Panel edycji użytkownika */}
-        {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-lg p-6 w-1/3">
-              <h2 className="text-xl font-bold mb-4">Edytuj Użytkownika</h2>
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Imię i nazwisko</label>
-                <input
-                  type="text"
-                  value={selectedUser.name}
-                  onChange={(e) =>
-                    setSelectedUser({ ...selectedUser, name: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border rounded"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Email</label>
-                <input
-                  type="email"
-                  value={selectedUser.email}
-                  onChange={(e) =>
-                    setSelectedUser({ ...selectedUser, email: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border rounded"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Hasło</label>
-                <input
-                  type="password"
-                  value={selectedUser.password}
-                  onChange={(e) =>
-                    setSelectedUser({ ...selectedUser, password: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border rounded"
-                />
-              </div>
-              <div className="flex justify-end space-x-4">
-                <button
-                  onClick={closeModal}
-                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                >
-                  Anuluj
-                </button>
-                <button
-                  onClick={saveChanges}
-                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                >
-                  Zapisz
-                </button>
-              </div>
+        {isModalOpen && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white rounded-lg shadow-md p-6 w-1/3">
+            <h2 className="text-lg font-bold mb-4">Edytuj użytkownika</h2>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Nazwa</label>
+              <input
+                type="text"
+                value={selectedUser.name}
+                onChange={(e) =>
+                  setSelectedUser({ ...selectedUser, name: e.target.value })
+                }
+                className="w-full border px-3 py-2 rounded"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Email</label>
+              <input
+                type="email"
+                value={selectedUser.email}
+                onChange={(e) =>
+                  setSelectedUser({ ...selectedUser, email: e.target.value })
+                }
+                className="w-full border px-3 py-2 rounded"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Hasło</label>
+              <input
+                type="password"
+                value={selectedUser.password || ''}
+                onChange={(e) =>
+                  setSelectedUser({ ...selectedUser, password: e.target.value })
+                }
+                placeholder="Zostaw puste, jeśli nie chcesz zmieniać"
+                className="w-full border px-3 py-2 rounded"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Admin</label>
+              <select
+                value={selectedUser.isAdmin ? 1 : 0}
+                onChange={(e) =>
+                  setSelectedUser({ ...selectedUser, isAdmin: e.target.value === '1' })
+                }
+                className="w-full border px-3 py-2 rounded"
+              >
+                <option value="0">Nie</option>
+                <option value="1">Tak</option>
+              </select>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
+                onClick={closeModal}
+              >
+                Anuluj
+              </button>
+              <button
+                className="bg-green-500 text-white px-4 py-2 rounded"
+                onClick={saveChanges}
+              >
+                Zapisz
+              </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
         {/* Panel usunięcia użytkownika*/}
-        {isDeleteConfirmOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-lg p-6 w-1/3">
-              <h2 className="text-xl font-bold mb-4">Czy na pewno chcesz usunąć?</h2>
-              <p className="mb-6">
-                Użytkownik: <span className="font-bold">{selectedUser?.name}</span>
-              </p>
-              <div className="flex justify-end space-x-4">
-                <button
-                  onClick={closeDeleteConfirm}
-                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                >
-                  Anuluj
-                </button>
-                <button
-                  onClick={deleteUser}
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                >
-                  Usuń
-                </button>
-              </div>
+        {isDeleteConfirmOpen && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white rounded-lg shadow-md p-6 w-1/3">
+            <h2 className="text-lg font-bold mb-4">Potwierdź usunięcie</h2>
+            <p>Czy na pewno chcesz usunąć użytkownika {selectedUser.name}?</p>
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
+                onClick={closeDeleteConfirm}
+              >
+                Anuluj
+              </button>
+              <button
+                className="bg-red-500 text-white px-4 py-2 rounded"
+                onClick={deleteUser}
+              >
+                Usuń
+              </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
         {/* Panel edycji kebaba */}
         {isKebabModalOpen && (
