@@ -2,15 +2,16 @@ import React, { useState, useEffect } from 'react';
 import axiosClient from '../axiosClient.js';
 import Header from '../components/Header.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPen, faTrash, faEye} from '@fortawesome/free-solid-svg-icons';
+import { faPen, faTrash, faEye } from '@fortawesome/free-solid-svg-icons';
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState(null);
-  const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-
+  
+  {/* Users API */}
+  const [users, setUsers] = useState([]);
   useEffect(() => {
     if (activeTab === 'users') {
       axiosClient
@@ -28,6 +29,8 @@ export default function AdminPanel() {
     }
   }, [activeTab]);
 
+  const saveChanges = () => {
+
   const openModal = (user) => {
     setSelectedUser({ ...user });
     setIsModalOpen(true);
@@ -38,8 +41,6 @@ export default function AdminPanel() {
     setIsModalOpen(false);
   };
 
-{/* Zmiany dla Users API */}
-  const saveChanges = () => {
     const updatedUser = {
       newName: selectedUser.newName,
       newEmail: selectedUser.newEmail,
@@ -137,20 +138,22 @@ export default function AdminPanel() {
       });
   };  
 
-  const [kebabs, setKebabs] = useState([
-    {
-      id: 1,
-      name: 'Kebab Express',
-      address: 'Legnica, ul. Główna 10',
-      gps: '51.207, 16.155',
-    },
-    {
-      id: 2,
-      name: 'Turkish Delight',
-      address: 'Legnica, ul. Kwiatowa 5',
-      gps: '51.205, 16.150',
-    },
-  ]);
+{/* Kebabs API */}
+  const [kebabs, setKebabs] = useState([]);
+    useEffect(() => {
+      if (activeTab === 'kebabs') {
+        axiosClient
+          .get('/kebabs')
+          .then((response) => {
+            console.log('Kebaby z API:', response.data);
+            setKebabs(response.data);
+          })
+          .catch((error) => {
+            console.error('Błąd podczas pobierania kebabów:', error);
+          });
+      }
+    }, [activeTab]);
+
   const [selectedKebab, setSelectedKebab] = useState(null);
   const [isKebabModalOpen, setIsKebabModalOpen] = useState(false);
   const [isKebabDeleteConfirmOpen, setIsKebabDeleteConfirmOpen] = useState(false);
@@ -182,16 +185,36 @@ export default function AdminPanel() {
     setIsKebabDeleteConfirmOpen(false);
   };
   
-  const deleteKebab = () => {
-    setKebabs((prevKebabs) => prevKebabs.filter((k) => k.id !== selectedKebab.id));
-    closeKebabDeleteConfirm();
+  const handleDeleteKebab = (id) => {
+    axiosClient
+      .delete(`/kebabs/${id}`)
+      .then(() => {
+        setKebabs((prevKebabs) => prevKebabs.filter((kebab) => kebab.id !== id));
+      })
+      .catch((error) => {
+        console.error('Błąd podczas usuwania kebaba:', error);
+      });
   };
   
-  const [suggestions, setSuggestions] = useState([
-    { id: 1, user: 'Jan Kowalski', text: 'Dodajcie więcej sosów.' },
-    { id: 2, user: 'Anna Nowak', text: 'Wprowadźcie opcję zamówień online.' },
-    { id: 3, user: 'Piotr Wiśniewski', text: 'Można by dodać promocje na weekend.' },
-  ]);
+  {/* Suggestions API */}
+  const [suggestions, setSuggestions] = useState([]);
+  useEffect(() => {
+    if (activeTab === 'suggestions') {
+      axiosClient
+        .get('/suggestions')
+        .then((response) => {
+          if (response.data && Array.isArray(response.data.suggestions)) {
+            setSuggestions(response.data.suggestions);
+          } else {
+            console.error('Unexpected response format:', response.data);
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching suggestions:', error);
+        });
+    }
+  }, [activeTab]);
+
   const [selectedSuggestion, setSelectedSuggestion] = useState(null);
   const [isSuggestionModalOpen, setIsSuggestionModalOpen] = useState(false);
   const [isSuggestionDeleteConfirmOpen, setIsSuggestionDeleteConfirmOpen] = useState(false);
@@ -217,12 +240,18 @@ export default function AdminPanel() {
   };
   
   const deleteSuggestion = () => {
-    setSuggestions((prevSuggestions) =>
-      prevSuggestions.filter((s) => s.id !== selectedSuggestion.id)
-    );
-    closeSuggestionDeleteConfirm();
+    axiosClient
+      .delete(`/suggestions/${selectedSuggestion.id}`)
+      .then(() => {
+        setSuggestions((prevSuggestions) =>
+          prevSuggestions.filter((s) => s.id !== selectedSuggestion.id)
+        );
+        closeSuggestionDeleteConfirm();
+      })
+      .catch((error) => {
+        console.error('Error deleting suggestion:', error);
+      });
   };
-  
 
   return (
     <div className="min-h-screen bg-lightGrayish relative">
@@ -307,28 +336,34 @@ export default function AdminPanel() {
             <table className="w-full table-auto bg-white rounded-lg shadow-md">
               <thead className="bg-darkGreen text-white">
                 <tr>
+                  <th className="px-4 py-2 text-center">Logo</th>
                   <th className="px-4 py-2 text-center">Nazwa</th>
                   <th className="px-4 py-2 text-center">Adres</th>
-                  <th className="px-4 py-2 text-center">GPS</th>
                   <th className="px-4 py-2 text-center">Akcje</th>
                 </tr>
               </thead>
               <tbody>
                 {kebabs.map((kebab) => (
                   <tr key={kebab.id} className="border-t text-center">
+                    <td className="px-4 py-2">
+                      <img
+                        src={kebab.logo}
+                        alt={kebab.name}
+                        className="h-12 w-12 object-cover rounded-full mx-auto"
+                      />
+                    </td>
                     <td className="px-4 py-2">{kebab.name}</td>
                     <td className="px-4 py-2">{kebab.address}</td>
-                    <td className="px-4 py-2">{kebab.gps}</td>
-                    <td className="px-4 py-2 flex justify-center space-x-4">
+                    <td className="px-4 py-2 flex justify-center items-center space-x-4">
                       <button
-                        className="text-green-500 hover:text-green-700"
-                        onClick={() => openKebabModal(kebab)}
+                        className="text-blue-500 hover:text-blue-700"
+                        onClick={() => handleEditKebab(kebab)}
                       >
                         <FontAwesomeIcon icon={faPen} />
                       </button>
                       <button
                         className="text-red-500 hover:text-red-700"
-                        onClick={() => openKebabDeleteConfirm(kebab)}
+                        onClick={() => handleDeleteKebab(kebab.id)}
                       >
                         <FontAwesomeIcon icon={faTrash} />
                       </button>
@@ -355,7 +390,7 @@ export default function AdminPanel() {
                 {suggestions.map((suggestion) => (
                   <tr key={suggestion.id} className="border-t text-center">
                     <td className="px-4 py-2">{suggestion.user}</td>
-                    <td className="px-4 py-2">{suggestion.text}</td>
+                    <td className="px-4 py-2">{suggestion.contents}</td>
                     <td className="px-4 py-2 flex justify-center space-x-4">
                       <button
                         className="text-blue-500 hover:text-blue-700"
@@ -573,7 +608,7 @@ export default function AdminPanel() {
                 <span className="font-bold">Użytkownik:</span> {selectedSuggestion?.user}
               </p>
               <p className="mb-6">
-                <span className="font-bold">Tekst:</span> {selectedSuggestion?.text}
+                <span className="font-bold">Tekst:</span> {selectedSuggestion?.contents}
               </p>
               <div className="flex justify-end">
                 <button
