@@ -158,8 +158,131 @@ export default function AdminPanel() {
   const [isKebabModalOpen, setIsKebabModalOpen] = useState(false);
   const [isKebabDeleteConfirmOpen, setIsKebabDeleteConfirmOpen] = useState(false);
   
+  const handleUpdateName = (kebabId, newName) => {
+    axiosClient
+      .put(`/kebabs/${kebabId}/name`, { name: newName })
+      .then((response) => {
+        console.log('Name updated:', response.data);
+        setKebabs((prevKebabs) =>
+          prevKebabs.map((kebab) =>
+            kebab.id === kebabId ? { ...kebab, name: newName } : kebab
+          )
+        );
+      })
+      .catch((error) => console.error('Error updating name:', error));
+  };
+  
+  const handleLogoUpload = (file) => {
+    const formData = new FormData();
+    formData.append('logo', file);
+  
+    axiosClient
+      .put(`/kebabs/${selectedKebab.id}/logo`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then((response) => {
+        console.log('Logo updated:', response.data);
+        setSelectedKebab({ ...selectedKebab, logo: response.data.logo });
+        setKebabs((prevKebabs) =>
+          prevKebabs.map((kebab) =>
+            kebab.id === selectedKebab.id ? { ...kebab, logo: response.data.logo } : kebab
+          )
+        );
+      })
+      .catch((error) => {
+        console.error('Error updating logo:', error);
+      });
+  };
+
+  const handleUpdateAddress = (kebabId, newAddress) => {
+    axiosClient
+      .put(`/kebabs/${kebabId}/address`, { address: newAddress })
+      .then((response) => {
+        console.log('Address updated:', response.data);
+        setSelectedKebab({ ...selectedKebab, address: newAddress });
+        setKebabs((prevKebabs) =>
+          prevKebabs.map((kebab) =>
+            kebab.id === kebabId ? { ...kebab, address: newAddress } : kebab
+          )
+        );
+      })
+      .catch((error) => {
+        console.error('Error updating address:', error);
+      });
+  };
+
+  const handleUpdateCoordinates = (kebabId, newCoordinates) => {
+    axiosClient
+      .put(`/kebabs/${kebabId}/coordinates`, { coordinates: newCoordinates })
+      .then((response) => {
+        console.log('Coordinates updated:', response.data);
+        setSelectedKebab({ ...selectedKebab, coordinates: newCoordinates });
+        setKebabs((prevKebabs) =>
+          prevKebabs.map((kebab) =>
+            kebab.id === kebabId
+              ? { ...kebab, coordinates: newCoordinates }
+              : kebab
+          )
+        );
+      })
+      .catch((error) => {
+        console.error('Error updating coordinates:', error);
+      });
+  };
+
+  const handleToggleSauce = (sauce) => {
+    const isAdding = !selectedKebab.sauces.includes(sauce);
+    axiosClient[isAdding ? 'post' : 'delete'](`/kebabs/${selectedKebab.id}/sauce`, { sauce })
+      .then(() => {
+        setSelectedKebab((prev) => ({
+          ...prev,
+          sauces: isAdding
+            ? [...prev.sauces, sauce]
+            : prev.sauces.filter((s) => s !== sauce),
+        }));
+      })
+      .catch((error) => console.error(`Error toggling sauce:`, error));
+  };
+  
+  const handleToggleMeat = (meat) => {
+    const isAdding = !selectedKebab.meats.includes(meat);
+    axiosClient[isAdding ? 'post' : 'delete'](`/kebabs/${selectedKebab.id}/meat`, { meat })
+      .then(() => {
+        setSelectedKebab((prev) => ({
+          ...prev,
+          meats: isAdding
+            ? [...prev.meats, meat]
+            : prev.meats.filter((m) => m !== meat),
+        }));
+      })
+      .catch((error) => console.error(`Error toggling meat:`, error));
+  };
+
+  const handleStatusChange = (newStatus) => {
+    axiosClient
+      .put(`/kebabs/${selectedKebab.id}/status`, { status: newStatus })
+      .then(() => {
+        setSelectedKebab((prev) => ({ ...prev, status: newStatus }));
+        setKebabs((prev) =>
+          prev.map((kebab) =>
+            kebab.id === selectedKebab.id ? { ...kebab, status: newStatus } : kebab
+          )
+        );
+      })
+      .catch((error) => console.error('Error updating status:', error));
+  };
+
+  const [localSauces, setLocalSauces] = useState([]);
+  const [localMeats, setLocalMeats] = useState([]);
+  const [localStatus, setLocalStatus] = useState('');
+
   const openKebabModal = (kebab) => {
-    setSelectedKebab({ ...kebab });
+    setSelectedKebab(kebab);
+    setLocalSauces([...kebab.sauces]);
+    setLocalMeats([...kebab.meats]);
+    setLocalStatus(kebab.status);
     setIsKebabModalOpen(true);
   };
   
@@ -169,11 +292,56 @@ export default function AdminPanel() {
   };
   
   const saveKebabChanges = () => {
-    setKebabs((prevKebabs) =>
-      prevKebabs.map((k) => (k.id === selectedKebab.id ? selectedKebab : k))
-    );
-    closeKebabModal();
+    const kebabId = selectedKebab.id;
+  
+    if (selectedKebab.logo !== initialKebab.logo) {
+      axiosClient.put(`/kebabs/${kebabId}/logo`, { logo: selectedKebab.logo })
+        .then(() => console.log('Logo zapisane pomyślnie.'))
+        .catch((error) => console.error('Błąd przy zapisywaniu logo:', error));
+    }
+  
+    if (selectedKebab.name !== initialKebab.name) {
+      axiosClient.put(`/kebabs/${kebabId}/name`, { name: selectedKebab.name })
+        .then(() => console.log('Nazwa zapisana pomyślnie.'))
+        .catch((error) => console.error('Błąd przy zapisywaniu nazwy:', error));
+    }
+  
+    if (selectedKebab.address !== initialKebab.address) {
+      axiosClient.put(`/kebabs/${kebabId}/address`, { address: selectedKebab.address })
+        .then(() => console.log('Adres zapisany pomyślnie.'))
+        .catch((error) => console.error('Błąd przy zapisywaniu adresu:', error));
+    }
+  
+    if (
+      selectedKebab.coordinates.latitude !== initialKebab.coordinates.latitude ||
+      selectedKebab.coordinates.longitude !== initialKebab.coordinates.longitude
+    ) {
+      axiosClient.put(`/kebabs/${kebabId}/coordinates`, { coordinates: selectedKebab.coordinates })
+        .then(() => console.log('Koordynaty zapisane pomyślnie.'))
+        .catch((error) => console.error('Błąd przy zapisywaniu koordynatów:', error));
+    }
+  
+    if (JSON.stringify(localSauces) !== JSON.stringify(initialKebab.sauces)) {
+      axiosClient.put(`/kebabs/${kebabId}/sauces`, { sauces: localSauces })
+        .then(() => console.log('Sosy zapisane pomyślnie.'))
+        .catch((error) => console.error('Błąd przy zapisywaniu sosów:', error));
+    }
+  
+    if (JSON.stringify(localMeats) !== JSON.stringify(initialKebab.meats)) {
+      axiosClient.put(`/kebabs/${kebabId}/meats`, { meats: localMeats })
+        .then(() => console.log('Mięsa zapisane pomyślnie.'))
+        .catch((error) => console.error('Błąd przy zapisywaniu mięs:', error));
+    }
+  
+    if (selectedKebab.status !== initialKebab.status) {
+      axiosClient.put(`/kebabs/${kebabId}/status`, { status: selectedKebab.status })
+        .then(() => console.log('Status zapisany pomyślnie.'))
+        .catch((error) => console.error('Błąd przy zapisywaniu statusu:', error));
+    }
+
+    setIsKebabModalOpen(false);
   };
+  
   
   const openKebabDeleteConfirm = (kebab) => {
     setSelectedKebab(kebab);
@@ -185,14 +353,17 @@ export default function AdminPanel() {
     setIsKebabDeleteConfirmOpen(false);
   };
   
-  const handleDeleteKebab = (id) => {
+  const deleteKebab = () => {
     axiosClient
-      .delete(`/kebabs/${id}`)
+      .delete(`/kebabs/${selectedKebab.id}`)
       .then(() => {
-        setKebabs((prevKebabs) => prevKebabs.filter((kebab) => kebab.id !== id));
+        setKebabs((prevKebabs) =>
+          prevKebabs.filter((kebab) => kebab.id !== selectedKebab.id)
+        );
+        closeKebabDeleteConfirm();
       })
       .catch((error) => {
-        console.error('Błąd podczas usuwania kebaba:', error);
+        console.error('Error deleting kebab:', error);
       });
   };
   
@@ -357,13 +528,13 @@ export default function AdminPanel() {
                     <td className="px-4 py-2 flex justify-center items-center space-x-4">
                       <button
                         className="text-blue-500 hover:text-blue-700"
-                        onClick={() => handleEditKebab(kebab)}
+                        onClick={() => openKebabModal(kebab)}
                       >
                         <FontAwesomeIcon icon={faPen} />
                       </button>
                       <button
                         className="text-red-500 hover:text-red-700"
-                        onClick={() => handleDeleteKebab(kebab.id)}
+                        onClick={() => openKebabDeleteConfirm(kebab)}
                       >
                         <FontAwesomeIcon icon={faTrash} />
                       </button>
@@ -518,12 +689,30 @@ export default function AdminPanel() {
         )}
 
         {/* Panel edycji kebaba */}
-        {isKebabModalOpen && (
+        {isKebabModalOpen && selectedKebab && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-lg p-6 w-1/3">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-1/3 max-h-[80vh] overflow-y-auto">
               <h2 className="text-xl font-bold mb-4">Edytuj Kebab</h2>
+
+              {/* Zmiana logo */}
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Nazwa</label>
+                <label className="font-bold block">Logo:</label>
+                <img
+                  src={selectedKebab.logo}
+                  alt="Logo kebaba"
+                  className="h-24 w-24 object-cover rounded-full mb-4"
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleLogoUpload(e.target.files[0])}
+                  className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+                />
+              </div>
+
+              {/* Zmiana nazwy */}
+              <div className="mb-4">
+                <label className="font-bold block">Nazwa:</label>
                 <input
                   type="text"
                   value={selectedKebab.name}
@@ -533,8 +722,10 @@ export default function AdminPanel() {
                   className="w-full px-4 py-2 border rounded"
                 />
               </div>
+
+              {/* Zmiana adresu */}
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Adres</label>
+                <label className="font-bold block">Adres:</label>
                 <input
                   type="text"
                   value={selectedKebab.address}
@@ -544,20 +735,73 @@ export default function AdminPanel() {
                   className="w-full px-4 py-2 border rounded"
                 />
               </div>
+
+              {/* Zmiana sosów */}
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">GPS</label>
-                <input
-                  type="text"
-                  value={selectedKebab.gps}
-                  onChange={(e) =>
-                    setSelectedKebab({ ...selectedKebab, gps: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border rounded"
-                />
+                <label className="font-bold block">Sosy:</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {selectedKebab?.sauces.map((sauce) => (
+                    <label key={sauce} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={localSauces.includes(sauce)}
+                        onChange={() => {
+                          setLocalSauces((prev) =>
+                            prev.includes(sauce)
+                              ? prev.filter((s) => s !== sauce)
+                              : [...prev, sauce]
+                          );
+                        }}
+                        className="w-4 h-4"
+                      />
+                      <span>{sauce}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
+
+              {/* Zmiana mięsa */}
+              <div className="mb-4">
+                <label className="font-bold block">Mięsa:</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {selectedKebab?.meats.map((meat) => (
+                    <label key={meat} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={localMeats.includes(meat)}
+                        onChange={() => {
+                          setLocalMeats((prev) =>
+                            prev.includes(meat)
+                              ? prev.filter((m) => m !== meat)
+                              : [...prev, meat]
+                          );
+                        }}
+                        className="w-4 h-4"
+                      />
+                      <span>{meat}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Zmiana statusu */}
+                <div className="mb-4">
+                  <label className="font-bold block">Status kebaba:</label>
+                  <select
+                    value={selectedKebab?.status}
+                    onChange={(e) => setSelectedKebab((prev) => ({ ...prev, status: e.target.value }))}
+                    className="w-full px-4 py-2 border rounded"
+                  >
+                    <option value="exists">Istnieje</option>
+                    <option value="closed">Zamknięty</option>
+                    <option value="planned">Planowany</option>
+                  </select>
+                </div>
+
+              {/* Przyciski akcji */}
               <div className="flex justify-end space-x-4">
                 <button
-                  onClick={closeKebabModal}
+                  onClick={() => setIsKebabModalOpen(false)}
                   className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
                 >
                   Anuluj
@@ -573,7 +817,7 @@ export default function AdminPanel() {
           </div>
         )}
 
-        {/* Panel usunięcia kebaba*/}
+        {/* Panel usunięcia kebaba */}
         {isKebabDeleteConfirmOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg shadow-lg p-6 w-1/3">
