@@ -16,14 +16,18 @@ export default function AdminPanel() {
       axiosClient
         .get('/getAllUsers')
         .then((response) => {
-          setUsers(response.data);
+          if (response.data && Array.isArray(response.data)) {
+            setUsers(response.data);
+          } else {
+            console.error('Unexpected response format:', response.data);
+          }
         })
         .catch((error) => {
           console.error('Error fetching users:', error);
         });
     }
   }, [activeTab]);
-  
+
   const openModal = (user) => {
     setSelectedUser({ ...user });
     setIsModalOpen(true);
@@ -34,42 +38,81 @@ export default function AdminPanel() {
     setIsModalOpen(false);
   };
 
+{/* Zmiany dla Users API */}
   const saveChanges = () => {
     const updatedUser = {
-      name: selectedUser.name,
-      email: selectedUser.email,
-      password: selectedUser.password,
-      isAdmin: selectedUser.isAdmin,
+      newName: selectedUser.newName,
+      newEmail: selectedUser.newEmail,
+      newPassword: selectedUser.newPassword,
+      confirmPassword: selectedUser.confirmPassword,
+      isAdmin: Boolean(selectedUser.isAdmin),
     };
-
-    if (selectedUser.password) {
+  
+    if (updatedUser.newName) {
       axiosClient
-        .put(`/api/users/${selectedUser.id}/changePassword`, { password: selectedUser.password })
+        .put(`/changeName/${selectedUser.id}`, {
+          newName: updatedUser.newName,
+        })
+        .then(() => {
+          setUsers((prevUsers) =>
+            prevUsers.map((user) =>
+              user.id === selectedUser.id ? { ...user, name: updatedUser.newName } : user
+            )
+          );
+        })
+        .catch((error) => {
+          console.error('Error updating name:', error);
+        });
+    }
+  
+    if (updatedUser.newEmail) {
+      axiosClient
+        .put(`/changeEmail/${selectedUser.id}`, {
+          newEmail: updatedUser.newEmail,
+        })
+        .then(() => {
+          setUsers((prevUsers) =>
+            prevUsers.map((user) =>
+              user.id === selectedUser.id ? { ...user, email: updatedUser.newEmail } : user
+            )
+          );
+        })
+        .catch((error) => {
+          console.error('Error updating email:', error);
+        });
+    }
+  
+    if (updatedUser.newPassword && updatedUser.confirmPassword) {
+      axiosClient
+        .put(`/changePassword/${selectedUser.id}`, {
+          newPassword: updatedUser.newPassword,
+          confirmPassword: updatedUser.confirmPassword,
+        })
+        .then(() => {
+          console.log('Password updated successfully');
+        })
         .catch((error) => {
           console.error('Error updating password:', error);
         });
     }
-
-    axiosClient
-      .put(`/api/users/${selectedUser.id}/changeName`, { name: selectedUser.name })
-      .then(() => {
-        axiosClient
-          .put(`/api/users/${selectedUser.id}/changeEmail`, { email: selectedUser.email })
-          .then(() => {
-            setUsers((prevUsers) =>
-              prevUsers.map((user) =>
-                user.id === selectedUser.id ? { ...user, ...updatedUser } : user
-              )
-            );
-            closeModal();
-          })
-          .catch((error) => {
-            console.error('Error updating email:', error);
-          });
-      })
-      .catch((error) => {
-        console.error('Error updating name:', error);
-      });
+  
+    if (updatedUser.isAdmin !== undefined) {
+      axiosClient
+        .put(`/changeUserRole/${selectedUser.id}`, {
+          isAdmin: updatedUser.isAdmin,
+        })
+        .then(() => {
+          setUsers((prevUsers) =>
+            prevUsers.map((user) =>
+              user.id === selectedUser.id ? { ...user, isAdmin: updatedUser.isAdmin } : user
+            )
+          );
+        })
+        .catch((error) => {
+          console.error('Error updating role:', error.response?.data || error.message);
+        });
+    }    
+    closeModal();
   };
 
   const openDeleteConfirm = (user) => {
@@ -84,7 +127,7 @@ export default function AdminPanel() {
 
   const deleteUser = () => {
     axiosClient
-      .delete(`/api/users/${selectedUser.id}`)
+      .delete(`/deleteUser/${selectedUser.id}`)
       .then(() => {
         setUsers((prevUsers) => prevUsers.filter((user) => user.id !== selectedUser.id));
         closeDeleteConfirm();
@@ -92,7 +135,7 @@ export default function AdminPanel() {
       .catch((error) => {
         console.error('Error deleting user:', error);
       });
-  };
+  };  
 
   const [kebabs, setKebabs] = useState([
     {
@@ -223,7 +266,7 @@ export default function AdminPanel() {
           <table className="w-full table-auto bg-white rounded-lg shadow-md">
             <thead className="bg-darkGreen text-white">
               <tr>
-                <th className="px-4 py-2 text-center">Name</th>
+                <th className="px-4 py-2 text-center">Użytkownik</th>
                 <th className="px-4 py-2 text-center">Email</th>
                 <th className="px-4 py-2 text-center">Hasło</th>
                 <th className="px-4 py-2 text-center">Rola</th>
@@ -336,73 +379,84 @@ export default function AdminPanel() {
 
         {/* Panel edycji użytkownika */}
         {isModalOpen && selectedUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white rounded-lg shadow-md p-6 w-1/3">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-3xl">
             <h2 className="text-lg font-bold mb-4">Edytuj użytkownika</h2>
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Nazwa</label>
-              <input
-                type="text"
-                value={selectedUser.name}
-                onChange={(e) =>
-                  setSelectedUser({ ...selectedUser, name: e.target.value })
-                }
-                className="w-full border px-3 py-2 rounded"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Email</label>
-              <input
-                type="email"
-                value={selectedUser.email}
-                onChange={(e) =>
-                  setSelectedUser({ ...selectedUser, email: e.target.value })
-                }
-                className="w-full border px-3 py-2 rounded"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Hasło</label>
-              <input
-                type="password"
-                value={selectedUser.password || ''}
-                onChange={(e) =>
-                  setSelectedUser({ ...selectedUser, password: e.target.value })
-                }
-                placeholder="Zostaw puste, jeśli nie chcesz zmieniać"
-                className="w-full border px-3 py-2 rounded"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Admin</label>
-              <select
-                value={selectedUser.isAdmin ? 1 : 0}
-                onChange={(e) =>
-                  setSelectedUser({ ...selectedUser, isAdmin: e.target.value === '1' })
-                }
-                className="w-full border px-3 py-2 rounded"
-              >
-                <option value="0">Nie</option>
-                <option value="1">Tak</option>
-              </select>
+            <div className="grid grid-cols-1 gap-4">
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">Nowa nazwa</label>
+                <input
+                  type="text"
+                  value={selectedUser.newName || ''}
+                  onChange={(e) =>
+                    setSelectedUser({ ...selectedUser, newName: e.target.value })
+                  }
+                  className="w-full border px-3 py-2 rounded"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">Nowy email</label>
+                <input
+                  type="email"
+                  value={selectedUser.newEmail || ''}
+                  onChange={(e) =>
+                    setSelectedUser({ ...selectedUser, newEmail: e.target.value })
+                  }
+                  className="w-full border px-3 py-2 rounded"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">Nowe hasło</label>
+                <input
+                  type="password"
+                  value={selectedUser.newPassword || ''}
+                  onChange={(e) =>
+                    setSelectedUser({ ...selectedUser, newPassword: e.target.value })
+                  }
+                  className="w-full border px-3 py-2 rounded"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">Potwierdź nowe hasło</label>
+                <input
+                  type="password"
+                  value={selectedUser.confirmPassword || ''}
+                  onChange={(e) =>
+                    setSelectedUser({ ...selectedUser, confirmPassword: e.target.value })
+                  }
+                  className="w-full border px-3 py-2 rounded"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">Admin</label>
+                <select
+                  value={selectedUser.isAdmin ? 1 : 0}
+                  onChange={(e) =>
+                    setSelectedUser({ ...selectedUser, isAdmin: e.target.value === '1' })
+                  }
+                  className="w-full border px-3 py-2 rounded"
+                >
+                  <option value="0">Nie</option>
+                  <option value="1">Tak</option>
+                </select>
+              </div>
             </div>
             <div className="flex justify-end gap-2">
-              <button
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
-                onClick={closeModal}
-              >
+              <button className="bg-gray-300 text-gray-700 px-4 py-2 rounded" onClick={closeModal}> 
                 Anuluj
               </button>
-              <button
-                className="bg-green-500 text-white px-4 py-2 rounded"
-                onClick={saveChanges}
-              >
+              <button className="bg-green-500 text-white px-4 py-2 rounded" onClick={saveChanges}>
                 Zapisz
               </button>
             </div>
           </div>
         </div>
-      )}
+        )}
 
         {/* Panel usunięcia użytkownika*/}
         {isDeleteConfirmOpen && selectedUser && (
@@ -426,7 +480,7 @@ export default function AdminPanel() {
             </div>
           </div>
         </div>
-      )}
+        )}
 
         {/* Panel edycji kebaba */}
         {isKebabModalOpen && (
