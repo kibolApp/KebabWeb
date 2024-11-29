@@ -30,17 +30,6 @@ export default function AdminPanel() {
   }, [activeTab]);
 
   const saveChanges = () => {
-
-  const openModal = (user) => {
-    setSelectedUser({ ...user });
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setSelectedUser(null);
-    setIsModalOpen(false);
-  };
-
     const updatedUser = {
       newName: selectedUser.newName,
       newEmail: selectedUser.newEmail,
@@ -116,6 +105,16 @@ export default function AdminPanel() {
     closeModal();
   };
 
+  const openModal = (user) => {
+    setSelectedUser({ ...user });
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedUser(null);
+    setIsModalOpen(false);
+  };
+
   const openDeleteConfirm = (user) => {
     setSelectedUser(user);
     setIsDeleteConfirmOpen(true);
@@ -157,67 +156,99 @@ export default function AdminPanel() {
   const [selectedKebab, setSelectedKebab] = useState(null);
   const [isKebabModalOpen, setIsKebabModalOpen] = useState(false);
   const [isKebabDeleteConfirmOpen, setIsKebabDeleteConfirmOpen] = useState(false);
+  const [localLogo, setLocalLogo] = useState(null);
   
-  const handleLogoUpload = (file) => {
-    const formData = new FormData();
-    formData.append('logo', file);
-  
-    axiosClient
-      .put(`/kebabs/${selectedKebab.id}/logo`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
-      .then((response) => {
-        console.log('Logo updated:', response.data);
-        setSelectedKebab({ ...selectedKebab, logo: response.data.logo });
-        setKebabs((prevKebabs) =>
-          prevKebabs.map((kebab) =>
-            kebab.id === selectedKebab.id ? { ...kebab, logo: response.data.logo } : kebab
-          )
-        );
-      })
-      .catch((error) => {
-        console.error('Error updating logo:', error);
-      });
-  };
-
   const [localSauces, setLocalSauces] = useState([]);
   const [localMeats, setLocalMeats] = useState([]);
   const [localStatus, setLocalStatus] = useState('');
   const [initialKebab, setInitialKebab] = useState(null);
+  const [localOpeningHours, setLocalOpeningHours] = useState([]);
+  //const [localOrderingOptions, setLocalOrderingOptions] = useState([]);
+
+  const kebabId = selectedKebab?.id;
 
   const openKebabModal = (kebab) => {
     setSelectedKebab({
       ...kebab,
       opening_hours: kebab.opening_hours || [],
       ordering_options: Array.isArray(kebab.ordering_options) ? kebab.ordering_options : [],
-      comments: kebab.comments || { reviews: [] },
     });
-    setInitialKebab({ ...kebab });
+    setInitialKebab({
+      ...kebab,
+      opening_hours: Array.isArray(kebab.opening_hours) ? kebab.opening_hours : [],
+    });
     setLocalSauces([...kebab.sauces]);
     setLocalMeats([...kebab.meats]);
     setLocalStatus(kebab.status);
+    setLocalOpeningHours(Array.isArray(kebab.opening_hours) ? [...kebab.opening_hours] : []);
+    setInitialKebab({ ...kebab });
     setIsKebabModalOpen(true);
   };
   
-  const saveKebabChanges = () => {
-    const kebabId = selectedKebab.id;
+  const handleLogoChange = (file) => {
+    if (!file) {
+      console.error("No file selected.");
+      return;
+    }
   
-    if (selectedKebab.logo !== initialKebab.logo) {
-      axiosClient.put(`/kebabs/${kebabId}/logo`, { logo: selectedKebab.logo })
-        .then(() => console.log('Logo zapisane pomyślnie.'))
-        .catch((error) => console.error('Błąd przy zapisywaniu logo:', error));
+    if (!file.type.startsWith("image/")) {
+      console.error("Invalid file format. Please upload an image.");
+      return;
+    }
+  
+    console.log("Selected file:", file);
+    setLocalLogo(file);
+  };
+
+  {/*const handleSauceChange = (sauce) => {
+    setLocalSauces((prev) =>
+      prev.includes(sauce)
+        ? prev.filter((s) => s !== sauce)
+        : [...prev, sauce]
+    );
+  };
+
+  const handleMeatChange = (meat) => {
+    setLocalMeats((prev) =>
+      prev.includes(meat)
+        ? prev.filter((m) => m !== meat)
+        : [...prev, meat]
+    );
+  };
+  */}
+  
+  const saveKebabChanges = () => {
+    if (localLogo) {
+      const formData = new FormData();
+      formData.append('logo', localLogo);
+      axiosClient
+        .put(`/kebabs/${kebabId}/logo`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          console.log('Logo updated:', response.data);
+          setSelectedKebab((prev) => ({
+            ...prev,
+            logo: response.data.kebab.logo,
+          }));
+        })
+        .catch((error) => {
+          console.error('Error updating logo:', error.response?.data || error.message);
+        });
     }
   
     if (selectedKebab.name !== initialKebab.name) {
-      axiosClient.put(`/kebabs/${kebabId}/name`, { name: selectedKebab.name })
+      axiosClient
+        .put(`/kebabs/${kebabId}/name`, { name: selectedKebab.name })
         .then(() => console.log('Nazwa zapisana pomyślnie.'))
         .catch((error) => console.error('Błąd przy zapisywaniu nazwy:', error));
     }
   
     if (selectedKebab.address !== initialKebab.address) {
-      axiosClient.put(`/kebabs/${kebabId}/address`, { address: selectedKebab.address })
+      axiosClient
+        .put(`/kebabs/${kebabId}/address`, { address: selectedKebab.address })
         .then(() => console.log('Adres zapisany pomyślnie.'))
         .catch((error) => console.error('Błąd przy zapisywaniu adresu:', error));
     }
@@ -230,31 +261,70 @@ export default function AdminPanel() {
         .then(() => console.log('Koordynaty zapisane pomyślnie.'))
         .catch((error) => console.error('Błąd przy zapisywaniu koordynatów:', error));
     }
-  
+
     if (JSON.stringify(localSauces) !== JSON.stringify(initialKebab.sauces)) {
-      axiosClient.put(`/kebabs/${kebabId}/sauces`, { sauces: localSauces })
-        .then(() => console.log('Sosy zapisane pomyślnie.'))
-        .catch((error) => console.error('Błąd przy zapisywaniu sosów:', error));
+      const saucesToAdd = localSauces.filter((sauce) => !initialKebab.sauces.includes(sauce));
+      const saucesToRemove = initialKebab.sauces.filter((sauce) => !localSauces.includes(sauce));
+    
+      saucesToAdd.forEach((sauce) => {
+        axiosClient
+          .post(`/kebabs/${selectedKebab.id}/sauce`, { sauce })
+          .then(() => console.log(`Sos ${sauce} dodany pomyślnie.`))
+          .catch((error) => console.error(`Błąd przy dodawaniu sosu ${sauce}:`, error));
+      })
+      saucesToRemove.forEach((sauce) => {
+        axiosClient
+          .delete(`/kebabs/${selectedKebab.id}/sauce`, { data: { sauce } })
+          .then(() => console.log(`Sos ${sauce} usunięty pomyślnie.`))
+          .catch((error) => console.error(`Błąd przy usuwaniu sosu ${sauce}:`, error));
+      });
     }
   
     if (JSON.stringify(localMeats) !== JSON.stringify(initialKebab.meats)) {
-      axiosClient.put(`/kebabs/${kebabId}/meats`, { meats: localMeats })
-        .then(() => console.log('Mięsa zapisane pomyślnie.'))
-        .catch((error) => console.error('Błąd przy zapisywaniu mięs:', error));
+      const meatsToAdd = localMeats.filter((meat) => !initialKebab.meats.includes(meat));
+      const meatsToRemove = initialKebab.meats.filter((meat) => !localMeats.includes(meat));
+    
+      meatsToAdd.forEach((meat) => {
+        axiosClient
+          .post(`/kebabs/${selectedKebab.id}/meat`, { meat })
+          .then(() => console.log(`Mięso ${meat} dodane pomyślnie.`))
+          .catch((error) => console.error(`Błąd przy dodawaniu mięsa ${meat}:`, error));
+      });
+    
+      meatsToRemove.forEach((meat) => {
+        axiosClient
+          .delete(`/kebabs/${selectedKebab.id}/meat`, { data: { meat } })
+          .then(() => console.log(`Mięso ${meat} usunięte pomyślnie.`))
+          .catch((error) => console.error(`Błąd przy usuwaniu mięsa ${meat}:`, error));
+      });
     }
   
     if (selectedKebab.status !== initialKebab.status) {
-      axiosClient.put(`/kebabs/${kebabId}/status`, { status: selectedKebab.status })
+      axiosClient
+        .put(`/kebabs/${kebabId}/status`, { status: selectedKebab.status })
         .then(() => console.log('Status zapisany pomyślnie.'))
         .catch((error) => console.error('Błąd przy zapisywaniu statusu:', error));
     }
 
-    if (JSON.stringify(selectedKebab.opening_hours) !== JSON.stringify(initialKebab.opening_hours)) {
-      axiosClient.put(`/kebabs/${kebabId}/opening-hours`, { opening_hours: selectedKebab.opening_hours })
-        .then(() => console.log('Godziny otwarcia zapisane pomyślnie.'))
-        .catch((error) => console.error('Błąd przy zapisywaniu godzin otwarcia:', error));
-  }
-
+    if (Array.isArray(initialKebab.opening_hours) && Array.isArray(localOpeningHours)) {
+      const hoursToAdd = localOpeningHours.filter((hour) => !initialKebab.opening_hours.includes(hour));
+      const hoursToRemove = initialKebab.opening_hours.filter((hour) => !localOpeningHours.includes(hour));
+    
+      hoursToAdd.forEach((hour) => {
+        axiosClient
+          .post(`/kebabs/${selectedKebab.id}/opening-hours`, { opening_hour: hour })
+          .then(() => console.log(`Godzina otwarcia "${hour}" dodana pomyślnie.`))
+          .catch((error) => console.error(`Błąd przy dodawaniu godziny otwarcia "${hour}":`, error));
+      });
+    
+      hoursToRemove.forEach((hour) => {
+        axiosClient
+          .delete(`/kebabs/${selectedKebab.id}/opening-hours`, { data: { opening_hour: hour } })
+          .then(() => console.log(`Godzina otwarcia "${hour}" usunięta pomyślnie.`))
+          .catch((error) => console.error(`Błąd przy usuwaniu godziny otwarcia "${hour}":`, error));
+      });
+    }
+    
     if (selectedKebab.opening_year !== initialKebab.opening_year) {
       axiosClient.put(`/kebabs/${kebabId}/opening-year`, { opening_year: selectedKebab.opening_year })
         .then(() => console.log('Rok otwarcia zapisany pomyślnie.'))
@@ -285,24 +355,25 @@ export default function AdminPanel() {
         .catch((error) => console.error('Błąd przy zapisywaniu sieciówki:', error));
     }
 
-    if (JSON.stringify(selectedKebab.ordering_options) !== JSON.stringify(initialKebab.ordering_options)) {
-      axiosClient.put(`/kebabs/${kebabId}/ordering-options`, { ordering_options: selectedKebab.ordering_options })
-        .then(() => console.log('Opcje zamówień zapisane pomyślnie.'))
-        .catch((error) => console.error('Błąd przy zapisywaniu opcji zamówień:', error));
-    }
-
-    if (JSON.stringify(selectedKebab.comments) !== JSON.stringify(initialKebab.comments)) {
-      axiosClient.put(`/kebabs/${kebabId}/comments`, { comments: selectedKebab.comments })
-        .then(() => console.log('Komentarze zapisane pomyślnie.'))
-        .catch((error) => console.error('Błąd przy zapisywaniu komentarzy:', error));
-    }
-    
-    if (JSON.stringify(selectedKebab.pages) !== JSON.stringify(initialKebab.pages)) {
-      axiosClient.put(`/kebabs/${kebabId}/pages`, { pages: selectedKebab.pages })
-        .then(() => console.log('Strony internetowe zapisane pomyślnie.'))
-        .catch((error) => console.error('Błąd przy zapisywaniu stron internetowych:', error));
-    }
-
+ {/*   if (JSON.stringify(localOrderingOptions) !== JSON.stringify(initialKebab.ordering_options)) {
+      const optionsToAdd = localOrderingOptions.filter((option) => !initialKebab.ordering_options.includes(option));
+      const optionsToRemove = initialKebab.ordering_options.filter((option) => !localOrderingOptions.includes(option));
+  
+      optionsToAdd.forEach((option) => {
+          axiosClient
+              .post(`/kebabs/${kebabId}/ordering-options`, { ordering_option: option })
+              .then(() => console.log(`Opcja zamówień "${option}" dodana pomyślnie.`))
+              .catch((error) => console.error(`Błąd przy dodawaniu opcji zamówień "${option}":`, error));
+      });
+  
+      optionsToRemove.forEach((option) => {
+          axiosClient
+              .delete(`/kebabs/${kebabId}/ordering-options`, { data: { ordering_option: option } })
+              .then(() => console.log(`Opcja zamówień "${option}" usunięta pomyślnie.`))
+              .catch((error) => console.error(`Błąd przy usuwaniu opcji zamówień "${option}":`, error));
+      });
+  }
+  */} 
     setIsKebabModalOpen(false);
   };
   
@@ -658,20 +729,20 @@ export default function AdminPanel() {
               <h2 className="text-xl font-bold mb-4">Edytuj Kebab</h2>
 
               {/* Zmiana logo */}
-              <div className="mb-4">
-                <label className="font-bold block">Logo:</label>
-                <img
-                  src={selectedKebab.logo}
-                  alt="Logo kebaba"
-                  className="h-24 w-24 object-cover rounded-full mb-4"
-                />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleLogoUpload(e.target.files[0])}
-                  className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
-                />
-              </div>
+                <div className="mb-4">
+                  <label className="font-bold block">Logo:</label>
+                  <img
+                    src={selectedKebab.logo}
+                    alt="Logo kebaba"
+                    className="h-24 w-24 object-cover rounded-full mb-4"
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleLogoChange(e.target.files[0])}
+                    className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+                  />
+                </div>
 
               {/* Zmiana nazwy */}
               <div className="mb-4">
@@ -699,52 +770,115 @@ export default function AdminPanel() {
                 />
               </div>
 
+              {/* Zmiana koordynatów */}
+                <div className="mb-4">
+                  <label className="font-bold block">Koordynaty:</label>
+                  
+                  {/* Szerokość Geo */}
+                  <div className="mb-2">
+                    <label className="block text-sm font-medium text-gray-700">Szerokość (Latitude):</label>
+                    <input
+                      type="number"
+                      step="0.000001"
+                      value={selectedKebab.coordinates.latitude}
+                      onChange={(e) =>
+                        setSelectedKebab({
+                          ...selectedKebab,
+                          coordinates: {
+                            ...selectedKebab.coordinates,
+                            latitude: parseFloat(e.target.value) || 0,
+                          },
+                        })
+                      }
+                      className="block w-full px-4 py-2 border rounded focus:outline-none"
+                    />
+                  </div>
+                  
+                  {/* Długość Geo */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Długość (Longitude):</label>
+                    <input
+                      type="number"
+                      step="0.000001"
+                      value={selectedKebab.coordinates.longitude}
+                      onChange={(e) =>
+                        setSelectedKebab({
+                          ...selectedKebab,
+                          coordinates: {
+                            ...selectedKebab.coordinates,
+                            longitude: parseFloat(e.target.value) || 0,
+                          },
+                        })
+                      }
+                      className="block w-full px-4 py-2 border rounded focus:outline-none"
+                    />
+                  </div>
+                </div>
+
               {/* Zmiana sosów */}
               <div className="mb-4">
                 <label className="font-bold block">Sosy:</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {selectedKebab?.sauces.map((sauce) => (
-                    <label key={sauce} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={localSauces.includes(sauce)}
-                        onChange={() => {
-                          setLocalSauces((prev) =>
-                            prev.includes(sauce)
-                              ? prev.filter((s) => s !== sauce)
-                              : [...prev, sauce]
-                          );
-                        }}
-                        className="w-4 h-4"
-                      />
-                      <span>{sauce}</span>
-                    </label>
-                  ))}
-                </div>
+                {localSauces.map((sauce, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      value={sauce}
+                      onChange={(e) => {
+                        const updatedSauces = [...localSauces];
+                        updatedSauces[index] = e.target.value;
+                        setLocalSauces(updatedSauces);
+                      }}
+                      className="border rounded p-2"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setLocalSauces(localSauces.filter((_, i) => i !== index))}
+                      className="text-red-500"
+                    >
+                      Usuń
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setLocalSauces([...localSauces, ""])}
+                  className="text-green-500"
+                >
+                  Dodaj sos
+                </button>
               </div>
 
               {/* Zmiana mięsa */}
               <div className="mb-4">
                 <label className="font-bold block">Mięsa:</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {selectedKebab?.meats.map((meat) => (
-                    <label key={meat} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={localMeats.includes(meat)}
-                        onChange={() => {
-                          setLocalMeats((prev) =>
-                            prev.includes(meat)
-                              ? prev.filter((m) => m !== meat)
-                              : [...prev, meat]
-                          );
-                        }}
-                        className="w-4 h-4"
-                      />
-                      <span>{meat}</span>
-                    </label>
-                  ))}
-                </div>
+                {localMeats.map((meat, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      value={meat}
+                      onChange={(e) => {
+                        const updatedMeats = [...localMeats];
+                        updatedMeats[index] = e.target.value;
+                        setLocalMeats(updatedMeats);
+                      }}
+                      className="border rounded p-2"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setLocalMeats(localMeats.filter((_, i) => i !== index))}
+                      className="text-red-500"
+                    >
+                      Usuń
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setLocalMeats([...localMeats, ""])}
+                  className="text-green-500"
+                >
+                  Dodaj mięso
+                </button>
               </div>
 
               {/* Zmiana statusu */}
@@ -762,22 +896,38 @@ export default function AdminPanel() {
                 </div>
 
               {/* Godziny otwarcia */}
-                <div className="mb-4">
-                  <label className="font-bold block">Godziny otwarcia:</label>
-                  <textarea
-                    value={Array.isArray(selectedKebab.opening_hours) ? selectedKebab.opening_hours.join('\n') : ''}
-                    onChange={(e) => {
-                      const updatedHours = e.target.value.split('\n');
-                      setSelectedKebab((prev) => ({
-                        ...prev,
-                        opening_hours: updatedHours,
-                      }));
-                    }}
-                    className="w-full px-4 py-2 border rounded resize-y"
-                    rows={4}
-                    placeholder="Wprowadź godziny otwarcia, np.\nMon-Fri: 10:00 - 22:00\nSat-Sun: 12:00 - 20:00"
-                  />
-                </div>
+              <div className="mb-4">
+                <label className="font-bold block">Godziny otwarcia:</label>
+                {localOpeningHours.map((hour, index) => (
+                    <div key={index} className="flex items-center space-x-2 mb-2">
+                        <input
+                            type="text"
+                            value={hour}
+                            onChange={(e) => {
+                                const updatedHours = [...localOpeningHours];
+                                updatedHours[index] = e.target.value;
+                                setLocalOpeningHours(updatedHours);
+                            }}
+                            className="w-full px-2 py-1 border rounded"
+                            placeholder="np. Mon-Fri: 10:00 - 22:00"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setLocalOpeningHours(localOpeningHours.filter((_, i) => i !== index))}
+                            className="text-red-500"
+                        >
+                            Usuń
+                        </button>
+                    </div>
+                ))}
+                <button
+                    type="button"
+                    onClick={() => setLocalOpeningHours([...localOpeningHours, ''])}
+                    className="text-green-500"
+                >
+                    Dodaj godzinę
+                </button>
+            </div>
 
                 {/* Rok otwarcia */}
                 <div className="mb-4">
@@ -818,7 +968,7 @@ export default function AdminPanel() {
                   <label className="font-bold block">Rzemieślniczy:</label>
                   <input
                     type="checkbox"
-                    checked={selectedKebab?.is_crafted || false} // Sprawdź aktualną wartość
+                    checked={selectedKebab?.is_crafted || false}
                     onChange={(e) =>
                       setSelectedKebab((prev) => ({ ...prev, is_crafted: e.target.checked }))
                     }
@@ -853,7 +1003,7 @@ export default function AdminPanel() {
                 </div>
 
               {/* Opcje zamówień */}
-                <div className="mb-4">
+  {/*               <div className="mb-4">
                   <label className="font-bold block">Opcje zamówień:</label>
                   <div className="grid grid-cols-2 gap-2">
                     {['Takeaway', 'Delivery', 'Pickup'].map((option) => (
@@ -877,112 +1027,7 @@ export default function AdminPanel() {
                     ))}
                   </div>
                 </div>
-
-                {/* Komentarze */}
-                  <div className="mb-4">
-                    <label className="font-bold block">Komentarze:</label>
-                    {Array.isArray(selectedKebab?.comments?.reviews) &&
-                      selectedKebab.comments.reviews.map((comment, index) => (
-                        <div key={index} className="flex items-center space-x-2 mb-2">
-                          <input
-                            type="text"
-                            value={comment}
-                            onChange={(e) => {
-                              const updatedComments = [...selectedKebab.comments.reviews];
-                              updatedComments[index] = e.target.value;
-
-                              setSelectedKebab((prev) => ({
-                                ...prev,
-                                comments: {
-                                  ...prev.comments,
-                                  reviews: updatedComments,
-                                },
-                              }));
-                            }}
-                            className="w-full px-4 py-2 border rounded"
-                            placeholder="Edytuj komentarz"
-                          />
-                          <button
-                            onClick={() => {
-                              const updatedComments = selectedKebab.comments.reviews.filter((_, i) => i !== index);
-                              setSelectedKebab((prev) => ({
-                                ...prev,
-                                comments: {
-                                  ...prev.comments,
-                                  reviews: updatedComments,
-                                },
-                              }));
-                            }}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            Usuń
-                          </button>
-                        </div>
-                      ))}
-                    <button
-                      onClick={() => {
-                        setSelectedKebab((prev) => ({
-                          ...prev,
-                          comments: {
-                            ...prev.comments,
-                            reviews: [...prev.comments.reviews, ''],
-                          },
-                        }));
-                      }}
-                      className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    >
-                      Dodaj komentarz
-                    </button>
-                  </div>
-
-                  {/* Strony internetowe */}
-                    <div className="mb-4">
-                      <label className="font-bold block">Strony internetowe:</label>
-                      {Array.isArray(selectedKebab?.pages) &&
-                        selectedKebab.pages.map((page, index) => (
-                          <div key={index} className="flex items-center space-x-2 mb-2">
-                            <input
-                              type="text"
-                              value={page}
-                              onChange={(e) => {
-                                const updatedPages = [...selectedKebab.pages];
-                                updatedPages[index] = e.target.value;
-
-                                setSelectedKebab((prev) => ({
-                                  ...prev,
-                                  pages: updatedPages,
-                                }));
-                              }}
-                              className="w-full px-4 py-2 border rounded"
-                              placeholder="Dodaj adres URL"
-                            />
-                            <button
-                              onClick={() => {
-                                const updatedPages = selectedKebab.pages.filter((_, i) => i !== index);
-                                setSelectedKebab((prev) => ({
-                                  ...prev,
-                                  pages: updatedPages,
-                                }));
-                              }}
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              Usuń
-                            </button>
-                          </div>
-                        ))}
-                      <button
-                        onClick={() => {
-                          setSelectedKebab((prev) => ({
-                            ...prev,
-                            pages: [...(prev.pages || []), ''],
-                          }));
-                        }}
-                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                      >
-                        Dodaj stronę
-                      </button>
-                    </div>
-
+*/}               
               {/* Przyciski akcji */}
               <div className="flex justify-end space-x-4">
                 <button
