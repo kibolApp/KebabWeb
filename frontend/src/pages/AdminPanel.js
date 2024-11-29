@@ -153,51 +153,75 @@ export default function AdminPanel() {
       }
     }, [activeTab]);
 
-  const [selectedKebab, setSelectedKebab] = useState(null);
-  const [isKebabModalOpen, setIsKebabModalOpen] = useState(false);
-  const [isKebabDeleteConfirmOpen, setIsKebabDeleteConfirmOpen] = useState(false);
-  const [localLogo, setLocalLogo] = useState(null);
-  
-  const [localSauces, setLocalSauces] = useState([]);
-  const [localMeats, setLocalMeats] = useState([]);
-  const [localStatus, setLocalStatus] = useState('');
-  const [initialKebab, setInitialKebab] = useState(null);
-  const [localOpeningHours, setLocalOpeningHours] = useState([]);
-  //const [localOrderingOptions, setLocalOrderingOptions] = useState([]);
+    const [selectedKebab, setSelectedKebab] = useState(null);
+    const [isKebabModalOpen, setIsKebabModalOpen] = useState(false);
+    const [isKebabDeleteConfirmOpen, setIsKebabDeleteConfirmOpen] = useState(false);
+    const [localLogo, setLocalLogo] = useState(null);
+    
+    const [localSauces, setLocalSauces] = useState([]);
+    const [localMeats, setLocalMeats] = useState([]);
+    const [localStatus, setLocalStatus] = useState('');
+    const [initialKebab, setInitialKebab] = useState(null);
+    const [localOpeningHours, setLocalOpeningHours] = useState([]);
+    const [localOrderingOptions, setLocalOrderingOptions] = useState([]);
 
   const kebabId = selectedKebab?.id;
 
   const openKebabModal = (kebab) => {
+    const parsedOpeningHours =
+      typeof kebab.opening_hours === "string"
+        ? JSON.parse(kebab.opening_hours || "{}")
+        : kebab.opening_hours || {};
+  
     setSelectedKebab({
       ...kebab,
-      opening_hours: kebab.opening_hours || [],
+      opening_hours: parsedOpeningHours,
       ordering_options: Array.isArray(kebab.ordering_options) ? kebab.ordering_options : [],
+      sauces: Array.isArray(kebab.sauces) ? kebab.sauces : JSON.parse(kebab.sauces || "[]"),
     });
+  
     setInitialKebab({
       ...kebab,
-      opening_hours: Array.isArray(kebab.opening_hours) ? kebab.opening_hours : [],
+      opening_hours: parsedOpeningHours,
+      ordering_options: Array.isArray(kebab.ordering_options) ? kebab.ordering_options : [],
+      sauces: Array.isArray(kebab.sauces) ? kebab.sauces : JSON.parse(kebab.sauces || "[]"),
     });
-    setLocalSauces([...kebab.sauces]);
+  
+    setLocalSauces(Array.isArray(kebab.sauces) ? kebab.sauces : JSON.parse(kebab.sauces || "[]"));
     setLocalMeats([...kebab.meats]);
     setLocalStatus(kebab.status);
-    setLocalOpeningHours(Array.isArray(kebab.opening_hours) ? [...kebab.opening_hours] : []);
-    setInitialKebab({ ...kebab });
+    setLocalLogo(null);
+    setLocalOpeningHours(parsedOpeningHours);
+    setLocalOrderingOptions(Array.isArray(kebab.ordering_options) ? [...kebab.ordering_options] : []);
     setIsKebabModalOpen(true);
   };
   
+  const convertFileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
+    });
+};
+
   const handleLogoChange = (file) => {
     if (!file) {
       console.error("No file selected.");
       return;
-    }
-  
-    if (!file.type.startsWith("image/")) {
+  }
+
+  if (!file.type.startsWith("image/")) {
       console.error("Invalid file format. Please upload an image.");
       return;
-    }
-  
-    console.log("Selected file:", file);
-    setLocalLogo(file);
+  }
+
+  convertFileToBase64(file)
+      .then((base64String) => {
+          console.log("Base64 logo:", base64String);
+          setLocalLogo(base64String);
+      })
+      .catch((error) => console.error("Error converting file to Base64:", error));
   };
 
   {/*const handleSauceChange = (sauce) => {
@@ -219,25 +243,27 @@ export default function AdminPanel() {
   
   const saveKebabChanges = () => {
     if (localLogo) {
-      const formData = new FormData();
-      formData.append('logo', localLogo);
+      const payload = { logo: localLogo };
+      console.log("Sending Base64 payload:", payload);
+  
       axiosClient
-        .put(`/kebabs/${kebabId}/logo`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-        .then((response) => {
-          console.log('Logo updated:', response.data);
-          setSelectedKebab((prev) => ({
-            ...prev,
-            logo: response.data.kebab.logo,
-          }));
-        })
-        .catch((error) => {
-          console.error('Error updating logo:', error.response?.data || error.message);
-        });
-    }
+          .put(`/kebabs/${kebabId}/logo`, payload, {
+              headers: {
+                  "Content-Type": "application/json",
+              },
+          })
+          .then((response) => {
+              console.log("Logo updated successfully:", response.data);
+              setSelectedKebab((prev) => ({
+                  ...prev,
+                  logo: response.data.kebab.logo,
+              }));
+              setLocalLogo(null);
+          })
+          .catch((error) => {
+              console.error("Error updating logo:", error.response?.data || error.message);
+          });
+      }
   
     if (selectedKebab.name !== initialKebab.name) {
       axiosClient
@@ -267,14 +293,17 @@ export default function AdminPanel() {
       const saucesToRemove = initialKebab.sauces.filter((sauce) => !localSauces.includes(sauce));
     
       saucesToAdd.forEach((sauce) => {
+        console.log(`POST Payload for Sauce:`, { sauce });
         axiosClient
-          .post(`/kebabs/${selectedKebab.id}/sauce`, { sauce })
+          .post(`/kebabs/${kebabId}/sauce`, { sauce })
           .then(() => console.log(`Sos ${sauce} dodany pomyślnie.`))
           .catch((error) => console.error(`Błąd przy dodawaniu sosu ${sauce}:`, error));
-      })
+      });
+    
       saucesToRemove.forEach((sauce) => {
+        console.log(`DELETE Payload for Sauce:`, { sauce });
         axiosClient
-          .delete(`/kebabs/${selectedKebab.id}/sauce`, { data: { sauce } })
+          .delete(`/kebabs/${kebabId}/sauce`, { data: { sauce } })
           .then(() => console.log(`Sos ${sauce} usunięty pomyślnie.`))
           .catch((error) => console.error(`Błąd przy usuwaniu sosu ${sauce}:`, error));
       });
@@ -285,15 +314,17 @@ export default function AdminPanel() {
       const meatsToRemove = initialKebab.meats.filter((meat) => !localMeats.includes(meat));
     
       meatsToAdd.forEach((meat) => {
+        console.log(`POST Payload for Meat:`, { meat });
         axiosClient
-          .post(`/kebabs/${selectedKebab.id}/meat`, { meat })
+          .post(`/kebabs/${kebabId}/meat`, { meat })
           .then(() => console.log(`Mięso ${meat} dodane pomyślnie.`))
           .catch((error) => console.error(`Błąd przy dodawaniu mięsa ${meat}:`, error));
       });
     
       meatsToRemove.forEach((meat) => {
+        console.log(`DELETE Payload for Meat:`, { meat });
         axiosClient
-          .delete(`/kebabs/${selectedKebab.id}/meat`, { data: { meat } })
+          .delete(`/kebabs/${kebabId}/meat`, { data: { meat } })
           .then(() => console.log(`Mięso ${meat} usunięte pomyślnie.`))
           .catch((error) => console.error(`Błąd przy usuwaniu mięsa ${meat}:`, error));
       });
@@ -306,24 +337,43 @@ export default function AdminPanel() {
         .catch((error) => console.error('Błąd przy zapisywaniu statusu:', error));
     }
 
-    if (Array.isArray(initialKebab.opening_hours) && Array.isArray(localOpeningHours)) {
-      const hoursToAdd = localOpeningHours.filter((hour) => !initialKebab.opening_hours.includes(hour));
-      const hoursToRemove = initialKebab.opening_hours.filter((hour) => !localOpeningHours.includes(hour));
+    if (initialKebab.opening_hours && selectedKebab.opening_hours) {
+      const daysToAddOrUpdate = Object.entries(selectedKebab.opening_hours).filter(
+        ([day, hours]) => !initialKebab.opening_hours[day] || initialKebab.opening_hours[day] !== hours
+      );
+      const daysToRemove = Object.keys(initialKebab.opening_hours).filter(
+        (day) => !selectedKebab.opening_hours[day]
+      );
     
-      hoursToAdd.forEach((hour) => {
+      daysToAddOrUpdate.forEach(([day, hours]) => {
+        const payload = { day, hours };
+        console.log(`POST Payload for Kebab ID: ${selectedKebab.id}`, payload); // Wylogowanie payloadu i Kebab ID
         axiosClient
-          .post(`/kebabs/${selectedKebab.id}/opening-hours`, { opening_hour: hour })
-          .then(() => console.log(`Godzina otwarcia "${hour}" dodana pomyślnie.`))
-          .catch((error) => console.error(`Błąd przy dodawaniu godziny otwarcia "${hour}":`, error));
+          .post(
+            `/kebabs/${selectedKebab.id}/opening-hours`,
+            { day, hours },
+            { headers: { "Content-Type": "application/json" } }
+          )
+          .then(() => console.log(`Dodano lub zaktualizowano godziny dla dnia: ${day} dla Kebab ID: ${selectedKebab.id}`))
+          .catch((error) =>
+            console.error(`Błąd przy dodawaniu godzin dla dnia ${day} dla Kebab ID: ${selectedKebab.id}:`, error)
+          );
       });
     
-      hoursToRemove.forEach((hour) => {
+      daysToRemove.forEach((day) => {
+        const payload = { day };
+        console.log(`DELETE Payload for Kebab ID: ${selectedKebab.id}`, payload); // Wylogowanie payloadu i Kebab ID
         axiosClient
-          .delete(`/kebabs/${selectedKebab.id}/opening-hours`, { data: { opening_hour: hour } })
-          .then(() => console.log(`Godzina otwarcia "${hour}" usunięta pomyślnie.`))
-          .catch((error) => console.error(`Błąd przy usuwaniu godziny otwarcia "${hour}":`, error));
+          .delete(`/kebabs/${selectedKebab.id}/opening-hours`, {
+            data: { day },
+            headers: { "Content-Type": "application/json" },
+          })
+          .then(() => console.log(`Usunięto godziny otwarcia dla dnia: ${day} dla Kebab ID: ${selectedKebab.id}`))
+          .catch((error) =>
+            console.error(`Błąd przy usuwaniu godzin dla dnia ${day} dla Kebab ID: ${selectedKebab.id}:`, error)
+          );
       });
-    }
+    }    
     
     if (selectedKebab.opening_year !== initialKebab.opening_year) {
       axiosClient.put(`/kebabs/${kebabId}/opening-year`, { opening_year: selectedKebab.opening_year })
@@ -355,25 +405,35 @@ export default function AdminPanel() {
         .catch((error) => console.error('Błąd przy zapisywaniu sieciówki:', error));
     }
 
- {/*   if (JSON.stringify(localOrderingOptions) !== JSON.stringify(initialKebab.ordering_options)) {
-      const optionsToAdd = localOrderingOptions.filter((option) => !initialKebab.ordering_options.includes(option));
-      const optionsToRemove = initialKebab.ordering_options.filter((option) => !localOrderingOptions.includes(option));
-  
-      optionsToAdd.forEach((option) => {
-          axiosClient
-              .post(`/kebabs/${kebabId}/ordering-options`, { ordering_option: option })
-              .then(() => console.log(`Opcja zamówień "${option}" dodana pomyślnie.`))
-              .catch((error) => console.error(`Błąd przy dodawaniu opcji zamówień "${option}":`, error));
+    if (JSON.stringify(localOrderingOptions) !== JSON.stringify(initialKebab.ordering_options)) {
+      const optionsToAdd = localOrderingOptions.filter(
+        (option) => !initialKebab.ordering_options?.includes(option)
+      );
+      const optionsToRemove = initialKebab.ordering_options?.filter(
+        (option) => !localOrderingOptions.includes(option)
+      );
+    
+      optionsToAdd.forEach((new_option) => {
+        console.log(`POST Payload for Ordering Option:`, { new_option });
+        axiosClient
+          .post(`/kebabs/${kebabId}/ordering-options`, { new_option })
+          .then(() => console.log(`Opcja zamówienia "${new_option}" dodana pomyślnie.`))
+          .catch((error) =>
+            console.error(`Błąd przy dodawaniu opcji zamówienia "${new_option}":`, error)
+          );
       });
-  
-      optionsToRemove.forEach((option) => {
-          axiosClient
-              .delete(`/kebabs/${kebabId}/ordering-options`, { data: { ordering_option: option } })
-              .then(() => console.log(`Opcja zamówień "${option}" usunięta pomyślnie.`))
-              .catch((error) => console.error(`Błąd przy usuwaniu opcji zamówień "${option}":`, error));
+    
+      optionsToRemove.forEach((old_option) => {
+        console.log(`DELETE Payload for Ordering Option:`, { old_option });
+        axiosClient
+          .delete(`/kebabs/${kebabId}/ordering-options`, { data: { old_option } })
+          .then(() => console.log(`Opcja zamówienia "${old_option}" usunięta pomyślnie.`))
+          .catch((error) =>
+            console.error(`Błąd przy usuwaniu opcji zamówienia "${old_option}":`, error)
+          );
       });
-  }
-  */} 
+    }
+
     setIsKebabModalOpen(false);
   };
   
@@ -535,7 +595,7 @@ export default function AdminPanel() {
         </div>
         )}
         {/* Tabela kebabs */}
-        {activeTab === 'kebabs' && (
+        {activeTab === "kebabs" && (
           <div className="w-full">
             <h1 className="text-2xl font-bold text-darkGreen mb-6">Kebaby</h1>
             <table className="w-full table-auto bg-white rounded-lg shadow-md">
@@ -551,11 +611,15 @@ export default function AdminPanel() {
                 {kebabs.map((kebab) => (
                   <tr key={kebab.id} className="border-t text-center">
                     <td className="px-4 py-2">
-                      <img
-                        src={kebab.logo}
-                        alt={kebab.name}
-                        className="h-12 w-12 object-cover rounded-full mx-auto"
-                      />
+                      {kebab.logo ? (
+                        <img
+                          src={`data:image/jpeg;base64,${kebab.logo}`}
+                          alt={kebab.name}
+                          className="h-12 w-12 object-cover rounded-full mx-auto"
+                        />
+                      ) : (
+                        <span className="text-gray-500 italic">Brak logo</span>
+                      )}
                     </td>
                     <td className="px-4 py-2">{kebab.name}</td>
                     <td className="px-4 py-2">{kebab.address}</td>
@@ -579,6 +643,7 @@ export default function AdminPanel() {
             </table>
           </div>
         )}
+        
         {/* Tabela suggestions */}
         {activeTab === 'suggestions' && (
           <div className="w-full">
@@ -729,20 +794,24 @@ export default function AdminPanel() {
               <h2 className="text-xl font-bold mb-4">Edytuj Kebab</h2>
 
               {/* Zmiana logo */}
-                <div className="mb-4">
-                  <label className="font-bold block">Logo:</label>
+              <div className="mb-4">
+                <label className="font-bold block">Logo:</label>
+                {selectedKebab.logo ? (
                   <img
                     src={selectedKebab.logo}
                     alt="Logo kebaba"
                     className="h-24 w-24 object-cover rounded-full mb-4"
                   />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleLogoChange(e.target.files[0])}
-                    className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
-                  />
-                </div>
+                ) : (
+                  <p className="text-gray-500">Brak logo</p>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleLogoChange(e.target.files[0])}
+                  className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+                />
+              </div>
 
               {/* Zmiana nazwy */}
               <div className="mb-4">
@@ -819,7 +888,7 @@ export default function AdminPanel() {
               <div className="mb-4">
                 <label className="font-bold block">Sosy:</label>
                 {localSauces.map((sauce, index) => (
-                  <div key={index} className="flex items-center space-x-2">
+                  <div key={index} className="flex items-center space-x-2 mb-2">
                     <input
                       type="text"
                       value={sauce}
@@ -828,12 +897,16 @@ export default function AdminPanel() {
                         updatedSauces[index] = e.target.value;
                         setLocalSauces(updatedSauces);
                       }}
-                      className="border rounded p-2"
+                      className="w-full px-4 py-2 border rounded"
+                      placeholder="Wprowadź nazwę sosu"
                     />
                     <button
                       type="button"
-                      onClick={() => setLocalSauces(localSauces.filter((_, i) => i !== index))}
-                      className="text-red-500"
+                      onClick={() => {
+                        const updatedSauces = localSauces.filter((_, i) => i !== index);
+                        setLocalSauces(updatedSauces);
+                      }}
+                      className="text-red-500 hover:text-red-700"
                     >
                       Usuń
                     </button>
@@ -842,17 +915,17 @@ export default function AdminPanel() {
                 <button
                   type="button"
                   onClick={() => setLocalSauces([...localSauces, ""])}
-                  className="text-green-500"
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                   Dodaj sos
                 </button>
               </div>
 
-              {/* Zmiana mięsa */}
+              {/* Zmiana mięs */}
               <div className="mb-4">
                 <label className="font-bold block">Mięsa:</label>
                 {localMeats.map((meat, index) => (
-                  <div key={index} className="flex items-center space-x-2">
+                  <div key={index} className="flex items-center space-x-2 mb-2">
                     <input
                       type="text"
                       value={meat}
@@ -861,12 +934,16 @@ export default function AdminPanel() {
                         updatedMeats[index] = e.target.value;
                         setLocalMeats(updatedMeats);
                       }}
-                      className="border rounded p-2"
+                      className="w-full px-4 py-2 border rounded"
+                      placeholder="Wprowadź rodzaj mięsa"
                     />
                     <button
                       type="button"
-                      onClick={() => setLocalMeats(localMeats.filter((_, i) => i !== index))}
-                      className="text-red-500"
+                      onClick={() => {
+                        const updatedMeats = localMeats.filter((_, i) => i !== index);
+                        setLocalMeats(updatedMeats);
+                      }}
+                      className="text-red-500 hover:text-red-700"
                     >
                       Usuń
                     </button>
@@ -875,7 +952,7 @@ export default function AdminPanel() {
                 <button
                   type="button"
                   onClick={() => setLocalMeats([...localMeats, ""])}
-                  className="text-green-500"
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                   Dodaj mięso
                 </button>
@@ -898,39 +975,60 @@ export default function AdminPanel() {
               {/* Godziny otwarcia */}
               <div className="mb-4">
                 <label className="font-bold block">Godziny otwarcia:</label>
-                {localOpeningHours.map((hour, index) => (
-                    <div key={index} className="flex items-center space-x-2 mb-2">
-                        <input
-                            type="text"
-                            value={hour}
-                            onChange={(e) => {
-                                const updatedHours = [...localOpeningHours];
-                                updatedHours[index] = e.target.value;
-                                setLocalOpeningHours(updatedHours);
-                            }}
-                            className="w-full px-2 py-1 border rounded"
-                            placeholder="np. Mon-Fri: 10:00 - 22:00"
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setLocalOpeningHours(localOpeningHours.filter((_, i) => i !== index))}
-                            className="text-red-500"
-                        >
-                            Usuń
-                        </button>
-                    </div>
+                {Object.entries(selectedKebab?.opening_hours || {}).map(([day, hours], index) => (
+                  <div key={index} className="flex items-center space-x-2 mb-2">
+                    <select
+                      value={day}
+                      disabled
+                      className="px-2 py-1 border rounded bg-gray-200"
+                    >
+                      <option>{day}</option>
+                    </select>
+                    <input
+                      type="text"
+                      value={hours}
+                      onChange={(e) => {
+                        const updatedHours = { ...selectedKebab.opening_hours, [day]: e.target.value };
+                        setSelectedKebab((prev) => ({ ...prev, opening_hours: updatedHours }));
+                      }}
+                      className="flex-1 px-2 py-1 border rounded"
+                      placeholder="Wprowadź godziny, np. 10:00 - 22:00"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updatedHours = { ...selectedKebab.opening_hours };
+                        delete updatedHours[day];
+                        setSelectedKebab((prev) => ({ ...prev, opening_hours: updatedHours }));
+                      }}
+                      className="text-red-500"
+                    >
+                      Usuń
+                    </button>
+                  </div>
                 ))}
                 <button
-                    type="button"
-                    onClick={() => setLocalOpeningHours([...localOpeningHours, ''])}
-                    className="text-green-500"
+                  type="button"
+                  onClick={() => {
+                    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                    const availableDay = days.find((day) => !Object.keys(selectedKebab.opening_hours || {}).includes(day));
+                    if (availableDay) {
+                      setSelectedKebab((prev) => ({
+                        ...prev,
+                        opening_hours: { ...prev.opening_hours, [availableDay]: '' },
+                      }));
+                    } else {
+                      alert('Wszystkie dni są już dodane.');
+                    }
+                  }}
+                  className="text-green-500"
                 >
-                    Dodaj godzinę
+                  Dodaj dzień
                 </button>
-            </div>
+              </div>
 
-                {/* Rok otwarcia */}
-                <div className="mb-4">
+              {/* Rok otwarcia */}
+              <div className="mb-4">
                   <label className="font-bold block">Rok otwarcia:</label>
                   <input
                     type="number"
@@ -944,10 +1042,10 @@ export default function AdminPanel() {
                     className="w-full px-4 py-2 border rounded"
                     placeholder="Wprowadź rok otwarcia"
                   />
-                </div>
+              </div>
 
-                {/* Rok zamknięcia */}
-                <div className="mb-4">
+              {/* Rok zamknięcia */}
+              <div className="mb-4">
                   <label className="font-bold block">Rok zamknięcia:</label>
                   <input
                     type="number"
@@ -961,73 +1059,85 @@ export default function AdminPanel() {
                     className="w-full px-4 py-2 border rounded"
                     placeholder="Wprowadź rok zamknięcia"
                   />
-                </div>
+              </div>
 
-                {/* Czy krafotwy*/}
-                <div className="mb-4">
-                  <label className="font-bold block">Rzemieślniczy:</label>
-                  <input
-                    type="checkbox"
-                    checked={selectedKebab?.is_crafted || false}
-                    onChange={(e) =>
-                      setSelectedKebab((prev) => ({ ...prev, is_crafted: e.target.checked }))
-                    }
-                    className="w-4 h-4"
-                  />
-                </div>
+              {/* Czy krafotwy*/}
+              <div className="mb-4">
+                <label className="font-bold block">Rzemieślniczy:</label>
+                <input
+                  type="checkbox"
+                  checked={selectedKebab?.is_crafted || false}
+                  onChange={(e) =>
+                    setSelectedKebab((prev) => ({ ...prev, is_crafted: e.target.checked }))
+                  }
+                  className="w-4 h-4"
+                />
+              </div>
 
-                {/* Czy buda */}
-                <div className="mb-4">
-                  <label className="font-bold block">Na miejscu:</label>
-                  <input
-                    type="checkbox"
-                    checked={selectedKebab?.is_premises || false}
-                    onChange={(e) =>
-                      setSelectedKebab((prev) => ({ ...prev, is_premises: e.target.checked }))
-                    }
-                    className="w-4 h-4"
-                  />
-                </div>
+              {/* Czy buda */}
+              <div className="mb-4">
+                <label className="font-bold block">Na miejscu:</label>
+                <input
+                  type="checkbox"
+                  checked={selectedKebab?.is_premises || false}
+                  onChange={(e) =>
+                    setSelectedKebab((prev) => ({ ...prev, is_premises: e.target.checked }))
+                  }
+                  className="w-4 h-4"
+                />
+              </div>
 
-                {/* Czy sieciówka */}
-                <div className="mb-4">
-                  <label className="font-bold block">Sieciówka:</label>
-                  <input
-                    type="checkbox"
-                    checked={selectedKebab?.is_chainstore || false}
-                    onChange={(e) =>
-                      setSelectedKebab((prev) => ({ ...prev, is_chainstore: e.target.checked }))
-                    }
-                    className="w-4 h-4"
-                  />
-                </div>
+              {/* Czy sieciówka */}
+              <div className="mb-4">
+                <label className="font-bold block">Sieciówka:</label>
+                <input
+                  type="checkbox"
+                  checked={selectedKebab?.is_chainstore || false}
+                  onChange={(e) =>
+                    setSelectedKebab((prev) => ({ ...prev, is_chainstore: e.target.checked }))
+                  }
+                  className="w-4 h-4"
+                />
+              </div>
 
               {/* Opcje zamówień */}
-  {/*               <div className="mb-4">
-                  <label className="font-bold block">Opcje zamówień:</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {['Takeaway', 'Delivery', 'Pickup'].map((option) => (
-                      <label key={option} className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          checked={(Array.isArray(selectedKebab?.ordering_options) && selectedKebab.ordering_options.includes(option)) || false}
-                          onChange={() => {
-                            const updatedOptions = (selectedKebab?.ordering_options || []).includes(option)
-                              ? selectedKebab.ordering_options.filter((o) => o !== option)
-                              : [...(selectedKebab.ordering_options || []), option];
-                            setSelectedKebab((prev) => ({
-                              ...prev,
-                              ordering_options: updatedOptions,
-                            }));
-                          }}
-                          className="w-4 h-4"
-                        />
-                        <span>{option}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-*/}               
+              <div className="mb-4">
+                <label className="font-bold block">Opcje zamówień:</label>
+                {Array.isArray(localOrderingOptions) &&
+                  localOrderingOptions.map((option, index) => (
+                    <div key={index} className="flex items-center space-x-2 mb-2">
+                      <input
+                        type="text"
+                        value={option}
+                        onChange={(e) => {
+                          const updatedOptions = [...localOrderingOptions];
+                          updatedOptions[index] = e.target.value;
+                          setLocalOrderingOptions(updatedOptions);
+                        }}
+                        className="w-full px-4 py-2 border rounded"
+                        placeholder="Wprowadź nową opcję zamówienia"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updatedOptions = localOrderingOptions.filter((_, i) => i !== index);
+                          setLocalOrderingOptions(updatedOptions);
+                        }}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        Usuń
+                      </button>
+                    </div>
+                  ))}
+                <button
+                  type="button"
+                  onClick={() => setLocalOrderingOptions([...localOrderingOptions, ""])}
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Dodaj opcję
+                </button>
+              </div>
+
               {/* Przyciski akcji */}
               <div className="flex justify-end space-x-4">
                 <button
