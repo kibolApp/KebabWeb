@@ -137,7 +137,7 @@ export default function AdminPanel() {
       });
   };  
 
-{/* Kebabs API */}
+  {/* Kebabs API */}
   const [kebabs, setKebabs] = useState([]);
     useEffect(() => {
       if (activeTab === 'kebabs') {
@@ -160,10 +160,11 @@ export default function AdminPanel() {
     
     const [localSauces, setLocalSauces] = useState([]);
     const [localMeats, setLocalMeats] = useState([]);
-    const [localStatus, setLocalStatus] = useState('');
+    const [setLocalStatus] = useState('');
     const [initialKebab, setInitialKebab] = useState(null);
-    const [localOpeningHours, setLocalOpeningHours] = useState([]);
+    const [setLocalOpeningHours] = useState([]);
     const [localOrderingOptions, setLocalOrderingOptions] = useState([]);
+    const [localPages, setLocalPages] = useState([]);
 
   const kebabId = selectedKebab?.id;
 
@@ -175,16 +176,19 @@ export default function AdminPanel() {
   
     setSelectedKebab({
       ...kebab,
+      logo: kebab.logo,
       opening_hours: parsedOpeningHours,
-      ordering_options: Array.isArray(kebab.ordering_options) ? kebab.ordering_options : [],
+      ordering_options: Array.isArray(kebab.ordering_options) ? kebab.ordering_options : JSON.parse(kebab.ordering_options || "[]"),
       sauces: Array.isArray(kebab.sauces) ? kebab.sauces : JSON.parse(kebab.sauces || "[]"),
+      pages: Array.isArray(kebab.pages) ? kebab.pages : JSON.parse(kebab.pages || "[]"),
     });
   
     setInitialKebab({
       ...kebab,
       opening_hours: parsedOpeningHours,
-      ordering_options: Array.isArray(kebab.ordering_options) ? kebab.ordering_options : [],
+      ordering_options: Array.isArray(kebab.ordering_options) ? kebab.ordering_options : JSON.parse(kebab.ordering_options || "[]"),
       sauces: Array.isArray(kebab.sauces) ? kebab.sauces : JSON.parse(kebab.sauces || "[]"),
+      pages: Array.isArray(kebab.pages) ? kebab.pages : JSON.parse(kebab.pages || "[]"),
     });
   
     setLocalSauces(Array.isArray(kebab.sauces) ? kebab.sauces : JSON.parse(kebab.sauces || "[]"));
@@ -193,77 +197,49 @@ export default function AdminPanel() {
     setLocalLogo(null);
     setLocalOpeningHours(parsedOpeningHours);
     setLocalOrderingOptions(Array.isArray(kebab.ordering_options) ? [...kebab.ordering_options] : []);
+    setLocalPages([...kebab.pages]);
     setIsKebabModalOpen(true);
   };
-  
-  const convertFileToBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = (error) => reject(error);
-        reader.readAsDataURL(file);
-    });
-};
 
   const handleLogoChange = (file) => {
     if (!file) {
-      console.error("No file selected.");
-      return;
-  }
+        console.error("No file selected.");
+        return;
+    }
 
-  if (!file.type.startsWith("image/")) {
-      console.error("Invalid file format. Please upload an image.");
-      return;
-  }
+    if (!file.type.startsWith("image/")) {
+        console.error("Invalid file format. Please upload an image.");
+        return;
+    }
 
-  convertFileToBase64(file)
-      .then((base64String) => {
-          console.log("Base64 logo:", base64String);
-          setLocalLogo(base64String);
-      })
-      .catch((error) => console.error("Error converting file to Base64:", error));
+    console.log("Selected file:", file);
+    setLocalLogo(file);
   };
-
-  {/*const handleSauceChange = (sauce) => {
-    setLocalSauces((prev) =>
-      prev.includes(sauce)
-        ? prev.filter((s) => s !== sauce)
-        : [...prev, sauce]
-    );
-  };
-
-  const handleMeatChange = (meat) => {
-    setLocalMeats((prev) =>
-      prev.includes(meat)
-        ? prev.filter((m) => m !== meat)
-        : [...prev, meat]
-    );
-  };
-  */}
   
   const saveKebabChanges = () => {
     if (localLogo) {
-      const payload = { logo: localLogo };
-      console.log("Sending Base64 payload:", payload);
-  
+      const reader = new FileReader();
+      reader.onload = () => {
+      const binaryLogo = reader.result;
+
+      console.log("Binary Logo to send:", binaryLogo);
+
       axiosClient
-          .put(`/kebabs/${kebabId}/logo`, payload, {
-              headers: {
-                  "Content-Type": "application/json",
-              },
-          })
-          .then((response) => {
-              console.log("Logo updated successfully:", response.data);
-              setSelectedKebab((prev) => ({
-                  ...prev,
-                  logo: response.data.kebab.logo,
-              }));
-              setLocalLogo(null);
-          })
-          .catch((error) => {
-              console.error("Error updating logo:", error.response?.data || error.message);
-          });
-      }
+        .put(`/kebabs/${kebabId}/logo`, binaryLogo)
+        .then((response) => {
+            console.log("Logo updated successfully:", response.data);
+            setSelectedKebab((prev) => ({
+                ...prev,
+                logo: response.data.kebab.logo,
+            }));
+            setLocalLogo(null);
+        })
+        .catch((error) => {
+            console.error("Error updating logo:", error.response?.data || error.message);
+        });
+      };
+      reader.readAsArrayBuffer(localLogo);
+    }
   
     if (selectedKebab.name !== initialKebab.name) {
       axiosClient
@@ -423,14 +399,33 @@ export default function AdminPanel() {
           );
       });
     
-      optionsToRemove.forEach((old_option) => {
-        console.log(`DELETE Payload for Ordering Option:`, { old_option });
+      optionsToRemove.forEach((option_to_remove) => {
+        console.log(`DELETE Payload for Ordering Option:`, { option_to_remove });
         axiosClient
-          .delete(`/kebabs/${kebabId}/ordering-options`, { data: { old_option } })
-          .then(() => console.log(`Opcja zamówienia "${old_option}" usunięta pomyślnie.`))
+          .delete(`/kebabs/${kebabId}/ordering-options`, { data: { option_to_remove } })
+          .then(() => console.log(`Opcja zamówienia "${option_to_remove}" usunięta pomyślnie.`))
           .catch((error) =>
-            console.error(`Błąd przy usuwaniu opcji zamówienia "${old_option}":`, error)
+            console.error(`Błąd przy usuwaniu opcji zamówienia "${option_to_remove}":`, error)
           );
+      });
+    }
+
+    if (JSON.stringify(localPages) !== JSON.stringify(initialKebab.pages)) {
+      const pagesToAdd = localPages.filter((page) => !initialKebab.pages?.includes(page));
+      const pagesToRemove = initialKebab.pages?.filter((page) => !localPages.includes(page));
+  
+      pagesToAdd.forEach((new_page) => {
+          axiosClient
+              .post(`/kebabs/${kebabId}/pages`, { new_page })
+              .then(() => console.log(`Dodano stronę: ${new_page}`))
+              .catch((error) => console.error(`Błąd przy dodawaniu strony:`, error));
+      });
+  
+      pagesToRemove.forEach((page_to_remove) => {
+          axiosClient
+              .delete(`/kebabs/${kebabId}/pages`, { data: { page_to_remove } })
+              .then(() => console.log(`Usunięto stronę: ${page_to_remove}`))
+              .catch((error) => console.error(`Błąd przy usuwaniu strony:`, error));
       });
     }
 
@@ -553,6 +548,7 @@ export default function AdminPanel() {
               </h1>
             </div>
         )}
+
         {/* Tabela users */}
         {activeTab === 'users' && (
         <div className="w-full">
@@ -594,6 +590,7 @@ export default function AdminPanel() {
           </table>
         </div>
         )}
+
         {/* Tabela kebabs */}
         {activeTab === "kebabs" && (
           <div className="w-full">
@@ -613,7 +610,7 @@ export default function AdminPanel() {
                     <td className="px-4 py-2">
                       {kebab.logo ? (
                         <img
-                          src={`data:image/jpeg;base64,${kebab.logo}`}
+                          src={kebab.logo}
                           alt={kebab.name}
                           className="h-12 w-12 object-cover rounded-full mx-auto"
                         />
@@ -796,14 +793,20 @@ export default function AdminPanel() {
               {/* Zmiana logo */}
               <div className="mb-4">
                 <label className="font-bold block">Logo:</label>
-                {selectedKebab.logo ? (
+                {localLogo ? (
+                  <img
+                    src={URL.createObjectURL(localLogo)}
+                    alt="Podgląd logo"
+                    className="h-24 w-24 object-cover rounded-full mb-4"
+                  />
+                ) : selectedKebab.logo ? (
                   <img
                     src={selectedKebab.logo}
-                    alt="Logo kebaba"
+                    alt="Aktualne logo"
                     className="h-24 w-24 object-cover rounded-full mb-4"
                   />
                 ) : (
-                  <p className="text-gray-500">Brak logo</p>
+                  <span className="text-gray-500 italic">Brak logo</span>
                 )}
                 <input
                   type="file"
@@ -1136,6 +1139,44 @@ export default function AdminPanel() {
                 >
                   Dodaj opcję
                 </button>
+              </div>
+
+              {/* Strona internetowa */}
+              <div className="mb-4">
+                  <label className="font-bold block">Strony internetowe:</label>
+                  {Array.isArray(localPages) &&
+                    localPages.map((page, index) => (
+                      <div key={index} className="flex items-center space-x-2 mb-2">
+                        <input
+                          type="text"
+                          value={page}
+                          onChange={(e) => {
+                              const updatedPages = [...localPages];
+                              updatedPages[index] = e.target.value;
+                              setLocalPages(updatedPages);
+                          }}
+                          className="w-full px-4 py-2 border rounded"
+                          placeholder="Wprowadź URL strony"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                              const updatedPages = localPages.filter((_, i) => i !== index);
+                              setLocalPages(updatedPages);
+                          }}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          Usuń
+                        </button>
+                      </div>
+                    ))}
+                  <button
+                      type="button"
+                      onClick={() => setLocalPages([...localPages, ""])}
+                      className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                      Dodaj stronę
+                  </button>
               </div>
 
               {/* Przyciski akcji */}
