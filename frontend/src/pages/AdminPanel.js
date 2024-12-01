@@ -161,7 +161,7 @@ export default function AdminPanel() {
     const [initialKebab, setInitialKebab] = useState(null);
     const [localSauces, setLocalSauces] = useState([]);
     const [localMeats, setLocalMeats] = useState([]);
-    const [localStatus,setLocalStatus] = useState('');
+    const [localStatus, setLocalStatus] = useState('');
     const [localOpeningHours, setLocalOpeningHours] = useState([]);
     const [localOrderingOptions, setLocalOrderingOptions] = useState([]);
     const [localPages, setLocalPages] = useState([]);
@@ -306,50 +306,36 @@ export default function AdminPanel() {
       });
     }
   
-    if (selectedKebab.status !== initialKebab.status) {
+    if (localStatus !== initialKebab.status) {
       axiosClient
-        .put(`/kebabs/${kebabId}/status`, { status: selectedKebab.status })
+        .put(`/kebabs/${kebabId}/status`, { status: localStatus })
         .then(() => console.log('Status zapisany pomyślnie.'))
         .catch((error) => console.error('Błąd przy zapisywaniu statusu:', error));
     }
 
-    if (initialKebab.opening_hours && selectedKebab.opening_hours) {
-      const daysToAddOrUpdate = Object.entries(selectedKebab.opening_hours).filter(
-        ([day, hours]) => !initialKebab.opening_hours[day] || initialKebab.opening_hours[day] !== hours
+    if (JSON.stringify(localOpeningHours) !== JSON.stringify(initialKebab.opening_hours)) {
+      const daysToUpdate = Object.entries(localOpeningHours).filter(
+        ([day, hours]) =>
+          !initialKebab.opening_hours[day] || initialKebab.opening_hours[day] !== hours
       );
       const daysToRemove = Object.keys(initialKebab.opening_hours).filter(
-        (day) => !selectedKebab.opening_hours[day]
+        (day) => !localOpeningHours[day]
       );
     
-      daysToAddOrUpdate.forEach(([day, hours]) => {
-        const payload = { day, hours };
-        console.log(`POST Payload for Kebab ID: ${selectedKebab.id}`, payload);
+      daysToUpdate.forEach(([day, hours]) => {
         axiosClient
-          .post(
-            `/kebabs/${selectedKebab.id}/opening-hours`,
-            { day, hours },
-            { headers: { "Content-Type": "application/json" } }
-          )
-          .then(() => console.log(`Dodano lub zaktualizowano godziny dla dnia: ${day} dla Kebab ID: ${selectedKebab.id}`))
-          .catch((error) =>
-            console.error(`Błąd przy dodawaniu godzin dla dnia ${day} dla Kebab ID: ${selectedKebab.id}:`, error)
-          );
+          .post(`/kebabs/${kebabId}/opening-hours`, { day, hours })
+          .then(() => console.log(`Godziny otwarcia dla ${day} zapisane.`))
+          .catch((error) => console.error('Błąd zapisywania godzin:', error));
       });
     
       daysToRemove.forEach((day) => {
-        const payload = { day };
-        console.log(`DELETE Payload for Kebab ID: ${selectedKebab.id}`, payload); // Wylogowanie payloadu i Kebab ID
         axiosClient
-          .delete(`/kebabs/${selectedKebab.id}/opening-hours`, {
-            data: { day },
-            headers: { "Content-Type": "application/json" },
-          })
-          .then(() => console.log(`Usunięto godziny otwarcia dla dnia: ${day} dla Kebab ID: ${selectedKebab.id}`))
-          .catch((error) =>
-            console.error(`Błąd przy usuwaniu godzin dla dnia ${day} dla Kebab ID: ${selectedKebab.id}:`, error)
-          );
+          .delete(`/kebabs/${kebabId}/opening-hours`, { data: { day } })
+          .then(() => console.log(`Godziny otwarcia dla ${day} usunięte.`))
+          .catch((error) => console.error('Błąd usuwania godzin:', error));
       });
-    }    
+    }
     
     if (selectedKebab.opening_year !== initialKebab.opening_year) {
       axiosClient.put(`/kebabs/${kebabId}/opening-year`, { opening_year: selectedKebab.opening_year })
@@ -965,7 +951,7 @@ export default function AdminPanel() {
                 <div className="mb-4">
                   <label className="font-bold block">Status kebaba:</label>
                   <select
-                    value={selectedKebab?.status}
+                    value={localStatus}
                     onChange={(e) => setSelectedKebab((prev) => ({ ...prev, status: e.target.value }))}
                     className="w-full px-4 py-2 border rounded"
                   >
@@ -978,31 +964,23 @@ export default function AdminPanel() {
               {/* Godziny otwarcia */}
               <div className="mb-4">
                 <label className="font-bold block">Godziny otwarcia:</label>
-                {Object.entries(selectedKebab?.opening_hours || {}).map(([day, hours], index) => (
+                {Object.entries(localOpeningHours).map(([day, hours], index) => (
                   <div key={index} className="flex items-center space-x-2 mb-2">
-                    <select
-                      value={day}
-                      disabled
-                      className="px-2 py-1 border rounded bg-gray-200"
-                    >
-                      <option>{day}</option>
-                    </select>
+                    <span className="w-1/4">{day}</span>
                     <input
                       type="text"
                       value={hours}
                       onChange={(e) => {
-                        const updatedHours = { ...selectedKebab.opening_hours, [day]: e.target.value };
-                        setSelectedKebab((prev) => ({ ...prev, opening_hours: updatedHours }));
+                        const updatedHours = { ...localOpeningHours, [day]: e.target.value };
+                        setLocalOpeningHours(updatedHours);
                       }}
-                      className="flex-1 px-2 py-1 border rounded"
-                      placeholder="Wprowadź godziny, np. 10:00 - 22:00"
+                      className="w-3/4 px-2 py-1 border rounded"
                     />
                     <button
-                      type="button"
                       onClick={() => {
-                        const updatedHours = { ...selectedKebab.opening_hours };
+                        const updatedHours = { ...localOpeningHours };
                         delete updatedHours[day];
-                        setSelectedKebab((prev) => ({ ...prev, opening_hours: updatedHours }));
+                        setLocalOpeningHours(updatedHours);
                       }}
                       className="text-red-500"
                     >
@@ -1011,15 +989,11 @@ export default function AdminPanel() {
                   </div>
                 ))}
                 <button
-                  type="button"
                   onClick={() => {
                     const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-                    const availableDay = days.find((day) => !Object.keys(selectedKebab.opening_hours || {}).includes(day));
+                    const availableDay = days.find((day) => !localOpeningHours[day]);
                     if (availableDay) {
-                      setSelectedKebab((prev) => ({
-                        ...prev,
-                        opening_hours: { ...prev.opening_hours, [availableDay]: '' },
-                      }));
+                      setLocalOpeningHours({ ...localOpeningHours, [availableDay]: '' });
                     } else {
                       alert('Wszystkie dni są już dodane.');
                     }
