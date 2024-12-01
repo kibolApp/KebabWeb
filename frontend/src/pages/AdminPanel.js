@@ -158,11 +158,11 @@ export default function AdminPanel() {
     const [isKebabDeleteConfirmOpen, setIsKebabDeleteConfirmOpen] = useState(false);
     const [localLogo, setLocalLogo] = useState(null);
     
+    const [initialKebab, setInitialKebab] = useState(null);
     const [localSauces, setLocalSauces] = useState([]);
     const [localMeats, setLocalMeats] = useState([]);
-    const [setLocalStatus] = useState('');
-    const [initialKebab, setInitialKebab] = useState(null);
-    const [setLocalOpeningHours] = useState([]);
+    const [localStatus,setLocalStatus] = useState('');
+    const [localOpeningHours, setLocalOpeningHours] = useState([]);
     const [localOrderingOptions, setLocalOrderingOptions] = useState([]);
     const [localPages, setLocalPages] = useState([]);
 
@@ -323,7 +323,7 @@ export default function AdminPanel() {
     
       daysToAddOrUpdate.forEach(([day, hours]) => {
         const payload = { day, hours };
-        console.log(`POST Payload for Kebab ID: ${selectedKebab.id}`, payload); // Wylogowanie payloadu i Kebab ID
+        console.log(`POST Payload for Kebab ID: ${selectedKebab.id}`, payload);
         axiosClient
           .post(
             `/kebabs/${selectedKebab.id}/opening-hours`,
