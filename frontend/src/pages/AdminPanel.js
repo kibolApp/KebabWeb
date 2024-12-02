@@ -1126,7 +1126,7 @@ export default function AdminPanel() {
                           value={page}
                           onChange={(e) => {
                               const updatedPages = [...localPages];
-                              updatedPages[index] = e.target.value;
+                              updatedPages[index] = e.target.value.trim();
                               setLocalPages(updatedPages);
                           }}
                           className="w-full px-4 py-2 border rounded"
