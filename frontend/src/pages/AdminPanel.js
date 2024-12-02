@@ -556,7 +556,6 @@ export default function AdminPanel() {
               <tr>
                 <th className="px-4 py-2 text-center">Użytkownik</th>
                 <th className="px-4 py-2 text-center">Email</th>
-                <th className="px-4 py-2 text-center">Hasło</th>
                 <th className="px-4 py-2 text-center">Rola</th>
                 <th className="px-4 py-2 text-center">Akcje</th>
               </tr>
@@ -566,7 +565,6 @@ export default function AdminPanel() {
                 <tr key={user.id} className="border-t text-center">
                   <td className="px-4 py-2">{user.name}</td>
                   <td className="px-4 py-2">{user.email}</td>
-                  <td className="px-4 py-2">******</td>
                   <td className="px-4 py-2">{user.isAdmin ? 'Admin' : 'User'}</td>
                   <td className="px-4 py-2 flex justify-center space-x-4">
                     <button
