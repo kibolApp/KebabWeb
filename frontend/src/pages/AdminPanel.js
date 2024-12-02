@@ -991,7 +991,7 @@ export default function AdminPanel() {
                 <button
                   onClick={() => {
                     const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-                    const availableDay = days.find((day) => !localOpeningHours[day]);
+                    const availableDay = days.find((day) => day in localOpeningHours && !localOpeningHours[day]);
                     if (availableDay) {
                       setLocalOpeningHours({ ...localOpeningHours, [availableDay]: '' });
                     } else {
