@@ -316,7 +316,7 @@ export default function AdminPanel() {
     if (JSON.stringify(localOpeningHours) !== JSON.stringify(initialKebab.opening_hours)) {
       const daysToUpdate = Object.entries(localOpeningHours).filter(
         ([day, hours]) =>
-          !initialKebab.opening_hours[day] || initialKebab.opening_hours[day] !== hours
+          !initialKebab.opening_hours[day] || (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].includes(day) && initialKebab.opening_hours[day] !== hours)
       );
       const daysToRemove = Object.keys(initialKebab.opening_hours).filter(
         (day) => !localOpeningHours[day] && Object.prototype.hasOwnProperty.call(initialKebab.opening_hours, day)
