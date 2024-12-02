@@ -883,7 +883,7 @@ export default function AdminPanel() {
                       value={sauce}
                       onChange={(e) => {
                         const updatedSauces = [...localSauces];
-                        updatedSauces[index] = e.target.value;
+                        updatedSauces[index] = e.target.value.trim();
                         setLocalSauces(updatedSauces);
                       }}
                       className="w-full px-4 py-2 border rounded"
