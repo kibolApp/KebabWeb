@@ -319,7 +319,7 @@ export default function AdminPanel() {
           !initialKebab.opening_hours[day] || initialKebab.opening_hours[day] !== hours
       );
       const daysToRemove = Object.keys(initialKebab.opening_hours).filter(
-        (day) => !localOpeningHours[day]
+        (day) => !localOpeningHours[day] && Object.prototype.hasOwnProperty.call(initialKebab.opening_hours, day)
       );
     
       daysToUpdate.forEach(([day, hours]) => {
