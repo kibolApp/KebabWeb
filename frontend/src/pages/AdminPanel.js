@@ -979,7 +979,7 @@ export default function AdminPanel() {
                     <button
                       onClick={() => {
                         const updatedHours = { ...localOpeningHours };
-                        delete updatedHours[day];
+                        if (day in updatedHours) delete updatedHours[day];
                         setLocalOpeningHours(updatedHours);
                       }}
                       className="text-red-500"
