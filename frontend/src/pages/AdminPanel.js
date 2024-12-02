@@ -1088,7 +1088,7 @@ export default function AdminPanel() {
                         value={option}
                         onChange={(e) => {
                           const updatedOptions = [...localOrderingOptions];
-                          updatedOptions[index] = e.target.value;
+                          updatedOptions[index] = String(e.target.value);
                           setLocalOrderingOptions(updatedOptions);
                         }}
                         className="w-full px-4 py-2 border rounded"
