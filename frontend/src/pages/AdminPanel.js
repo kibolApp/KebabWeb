@@ -920,7 +920,7 @@ export default function AdminPanel() {
                       value={meat}
                       onChange={(e) => {
                         const updatedMeats = [...localMeats];
-                        updatedMeats[index] = e.target.value;
+                        updatedMeats[index] = String(e.target.value);
                         setLocalMeats(updatedMeats);
                       }}
                       className="w-full px-4 py-2 border rounded"
