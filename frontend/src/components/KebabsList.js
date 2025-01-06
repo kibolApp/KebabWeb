@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons';
 
@@ -25,10 +25,17 @@ const translateStatus = (status) => {
 
   export default function KebabsList({ kebabs, activeKebabIndex }) {
     const [openIndex, setOpenIndex] = useState(null);
+    const kebabRefs = useRef([]);
   
     useEffect(() => {
       if (activeKebabIndex !== null) {
         setOpenIndex(activeKebabIndex);
+        if (kebabRefs.current[activeKebabIndex]) {
+          kebabRefs.current[activeKebabIndex].scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+        }
       }
     }, [activeKebabIndex]);
   
@@ -41,7 +48,10 @@ const translateStatus = (status) => {
         {kebabs.map((kebab, index) => (
           <div
             key={kebab.id}
-            className="bg-white border border-gray-300 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+            ref={(el) => (kebabRefs.current[index] = el)}
+            className={`p-4 rounded-lg shadow-md bg-white ${
+              activeKebabIndex === index ? 'border-2 border-blue-500' : ''
+            }`}
           >
             <div
               className="flex items-center justify-between p-3 cursor-pointer"

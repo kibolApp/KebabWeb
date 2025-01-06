@@ -3,6 +3,7 @@ import '../index.css';
 import Header from '../components/Header.js';
 import Footer from '../components/Footer.js';
 import KebabsList from '../components/KebabsList.js';
+import SearchPanel from '../components/SearchPanel.js';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -16,6 +17,7 @@ export default function Map() {
   ];
 
   const [kebabs, setKebabs] = useState([]);
+  const [filteredKebabs, setFilteredKebabs] = useState([]);
   const [activeKebabIndex, setActiveKebabIndex] = useState(null);
 
   useEffect(() => {
@@ -23,6 +25,7 @@ export default function Map() {
       .get('/kebabs')
       .then((response) => {
         setKebabs(response.data);
+        setFilteredKebabs(response.data);
       })
       .catch((error) => {
         console.error('Błąd pobierania kebabów:', error);
@@ -35,6 +38,37 @@ export default function Map() {
     iconAnchor: [15, 30],
     popupAnchor: [0, -30],
   });
+
+  const handleSearch = (filtered) => {
+    setFilteredKebabs(filtered);
+  };
+
+  const handleSort = (sortOrder) => {
+    const sortedKebabs = [...filteredKebabs].sort((a, b) => {
+      if (sortOrder === 'asc') {
+        return a.name.localeCompare(b.name);
+      } else {
+        return b.name.localeCompare(a.name);
+      }
+    });
+    setFilteredKebabs(sortedKebabs);
+  };
+
+  const scrollToKebab = (index) => {
+    setActiveKebabIndex(index);
+
+    setTimeout(() => {
+      const kebabElement = document.getElementById(`kebab-${index}`);
+      if (kebabElement) {
+        const rect = kebabElement.getBoundingClientRect();
+        const offset = window.scrollY + rect.top - 150;
+        window.scrollTo({
+          top: offset,
+          behavior: 'smooth',
+        });
+      }
+    }, 0);
+  };
 
   return (
     <div className="min-h-screen bg-lightGrayish">
@@ -55,10 +89,10 @@ export default function Map() {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             />
 
-            {kebabs.map((kebab, index) => (
+            {filteredKebabs.map((kebab, index) => (
               <Marker
                 key={kebab.id}
-                position={[kebab.coordinates.latitude, kebab.coordinates.longitude]}
+                position={[kebab.coordinates.lat, kebab.coordinates.lng]}
                 icon={kebabIcon}
               >
                 <Popup>
@@ -66,7 +100,7 @@ export default function Map() {
                   {kebab.address} <br />
                   <button
                     className="text-blue-500 underline"
-                    onClick={() => setActiveKebabIndex(index)}
+                    onClick={() => scrollToKebab(index)}
                   >
                     Szczegóły
                   </button>
@@ -76,11 +110,17 @@ export default function Map() {
           </MapContainer>
         </div>
 
-        <div className="w-full lg:w-1/3">
-          <KebabsList kebabs={kebabs} activeKebabIndex={activeKebabIndex} />
+        <div className="w-full lg:w-1/3 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 bg-gray-100">
+          <div className="sticky top-0 bg-gray-100 z-10">
+            <SearchPanel
+              kebabs={kebabs}
+              onSearch={handleSearch}
+              onSort={handleSort}
+            />
+          </div>
+          <KebabsList kebabs={filteredKebabs} activeKebabIndex={activeKebabIndex} />
         </div>
       </main>
-      
       <Footer />
     </div>
   );
