@@ -26,6 +26,7 @@ export default function Map() {
       .then((response) => {
         setKebabs(response.data);
         setFilteredKebabs(response.data);
+        console.log('Pobrane kebaby:', response.data);
       })
       .catch((error) => {
         console.error('Błąd pobierania kebabów:', error);
@@ -41,17 +42,6 @@ export default function Map() {
 
   const handleSearch = (filtered) => {
     setFilteredKebabs(filtered);
-  };
-
-  const handleSort = (sortOrder) => {
-    const sortedKebabs = [...filteredKebabs].sort((a, b) => {
-      if (sortOrder === 'asc') {
-        return a.name.localeCompare(b.name);
-      } else {
-        return b.name.localeCompare(a.name);
-      }
-    });
-    setFilteredKebabs(sortedKebabs);
   };
 
   const scrollToKebab = (index) => {
@@ -74,6 +64,7 @@ export default function Map() {
     <div className="min-h-screen bg-lightGrayish">
       <Header />
       <main className="flex flex-col lg:flex-row h-[calc(100vh-6rem)] px-4 py-2">
+        {/* Mapa */}
         <div className="bg-mediumGray w-full lg:w-2/3 h-64 lg:h-full mb-4 lg:mb-0 lg:mr-4 flex items-center justify-center">
           <MapContainer
             bounds={legnicaBounds}
@@ -110,15 +101,14 @@ export default function Map() {
           </MapContainer>
         </div>
 
-        <div className="w-full lg:w-1/3 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 bg-gray-100">
-          <div className="sticky top-0 bg-gray-100 z-10">
-            <SearchPanel
-              kebabs={kebabs}
-              onSearch={handleSearch}
-              onSort={handleSort}
-            />
+        <div className="w-full lg:w-1/3 h-full overflow-hidden bg-gray-100 flex flex-col">
+          <div className="sticky top-0 bg-gray-100 z-10 shadow-md">
+            <SearchPanel kebabs={kebabs} onSearch={handleSearch} />
           </div>
-          <KebabsList kebabs={filteredKebabs} activeKebabIndex={activeKebabIndex} />
+
+          <div className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+            <KebabsList kebabs={filteredKebabs} activeKebabIndex={activeKebabIndex} />
+          </div>
         </div>
       </main>
       <Footer />

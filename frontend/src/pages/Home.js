@@ -10,6 +10,7 @@ import axiosClient from '../axiosClient.js';
 export default function Home() {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [suggestion, setSuggestion] = useState('');
 
@@ -17,36 +18,48 @@ export default function Home() {
     const token = localStorage.getItem('authToken');
     if (token) {
       setIsLoggedIn(true);
+
+      axiosClient
+        .get('/getCurrentUser', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((response) => {
+          const user = response.data.user;
+          setIsAdmin(user.isAdmin === 1);
+        })
+        .catch((error) => {
+          console.error('Błąd pobierania danych użytkownika:', error);
+        });
     }
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     setIsLoggedIn(false);
+    setIsAdmin(false);
     toast.success('Wylogowano pomyślnie!', { autoClose: 2000 });
   };
 
   const handleSuggestionSubmit = async () => {
     const token = localStorage.getItem('authToken');
-  
     if (!suggestion.trim()) {
       toast.error('Proszę wpisać treść sugestii.');
       return;
     }
-  
+
     try {
       const userResponse = await axiosClient.get('/getCurrentUser', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       const user = userResponse.data.user?.name || 'Anonimowy użytkownik';
-  
+
       await axiosClient.post(
         '/suggestions',
         { user, contents: suggestion },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-  
+
       toast.success('Sugestia została wysłana!');
       setIsModalOpen(false);
       setSuggestion('');
@@ -55,7 +68,6 @@ export default function Home() {
       console.error('Błąd podczas wysyłania sugestii:', error);
     }
   };
-  
 
   return (
     <div className="flex flex-col min-h-screen bg-lightGrayish" style={{ fontFamily: 'Poppins, sans-serif' }}>
@@ -91,6 +103,14 @@ export default function Home() {
                 >
                   SUGESTIA
                 </button>
+                {isAdmin && (
+                  <button 
+                    className="bg-oliveGreen text-white py-4 md:py-6 px-8 md:px-12 rounded-lg hover:bg-darkGreen hover:text-white focus:outline-none focus:ring-2 focus:ring-darkGreen text-lg md:text-xl"
+                    onClick={() => navigate('/admin')}
+                  >
+                    ADMIN PANEL
+                  </button>
+                )}
               </>
             ) : (
               <button 
@@ -106,7 +126,7 @@ export default function Home() {
       <Footer />
       <ToastContainer />
 
-      {/* Modal */}
+      {/* Sugestia Panel */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-1/3">

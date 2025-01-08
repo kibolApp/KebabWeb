@@ -7,12 +7,22 @@ export default function SearchPanel({ kebabs, onSearch }) {
   const [sortOrder, setSortOrder] = useState('asc');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [showOpenNow, setShowOpenNow] = useState(false);
+  const [selectedSauces, setSelectedSauces] = useState([]);
+  const [selectedMeats, setSelectedMeats] = useState([]);
+
+  const allSauces = Array.from(
+    new Set(kebabs.flatMap((kebab) => kebab.sauces || []))
+  );
+
+  const allMeats = Array.from(
+    new Set(kebabs.flatMap((kebab) => kebab.meats || []))
+  );
 
   const getCurrentTimeDetails = () => {
     const now = new Date();
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
-    const currentTime = currentHour + currentMinute / 60; // Godzina w formacie dziesiętnym
+    const currentTime = currentHour + currentMinute / 60;
     const currentDay = now.toLocaleString('en-US', { weekday: 'long' }).toLowerCase();
     return { currentTime, currentDay };
   };
@@ -21,14 +31,14 @@ export default function SearchPanel({ kebabs, onSearch }) {
     const { currentTime, currentDay } = getCurrentTimeDetails();
 
     if (!kebab.opening_hours || !kebab.opening_hours[currentDay]) {
-      return false; // Brak danych dla bieżącego dnia
+      return false;
     }
 
     const [opening, closing] = kebab.opening_hours[currentDay]
       .split('-')
       .map((time) => {
         const [hour, minute] = time.split(':').map(Number);
-        return hour + minute / 60; // Zamiana na format dziesiętny
+        return hour + minute / 60;
       });
 
     return currentTime >= opening && currentTime < closing;
@@ -37,36 +47,64 @@ export default function SearchPanel({ kebabs, onSearch }) {
   const handleSearchChange = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
-
-    let filteredKebabs = query
-      ? kebabs.filter((kebab) =>
-          kebab.name.toLowerCase().includes(query.toLowerCase())
-        )
-      : kebabs;
-
-    if (showOpenNow) {
-      filteredKebabs = filteredKebabs.filter(isOpenNow);
-    }
-
-    filteredKebabs = sortKebabs(filteredKebabs, sortOrder);
-
-    onSearch(filteredKebabs);
+    applyFilters(query, selectedSauces, selectedMeats, showOpenNow, sortOrder);
   };
 
   const handleSortChange = (order) => {
     setSortOrder(order);
+    applyFilters(searchQuery, selectedSauces, selectedMeats, showOpenNow, order);
+  };
 
-    let filteredKebabs = sortKebabs(kebabs, order);
+  const handleSauceToggle = (sauce) => {
+    const updatedSauces = selectedSauces.includes(sauce)
+      ? selectedSauces.filter((s) => s !== sauce)
+      : [...selectedSauces, sauce];
 
-    if (searchQuery) {
+    setSelectedSauces(updatedSauces);
+    applyFilters(searchQuery, updatedSauces, selectedMeats, showOpenNow, sortOrder);
+  };
+
+  const handleMeatToggle = (meat) => {
+    const updatedMeats = selectedMeats.includes(meat)
+      ? selectedMeats.filter((m) => m !== meat)
+      : [...selectedMeats, meat];
+
+    setSelectedMeats(updatedMeats);
+    applyFilters(searchQuery, selectedSauces, updatedMeats, showOpenNow, sortOrder);
+  };
+
+  const toggleOpenNow = () => {
+    const updatedShowOpenNow = !showOpenNow;
+    setShowOpenNow(updatedShowOpenNow);
+    applyFilters(searchQuery, selectedSauces, selectedMeats, updatedShowOpenNow, sortOrder);
+  };
+
+  const applyFilters = (query, sauces, meats, openNow, order) => {
+    let filteredKebabs = kebabs;
+
+    if (query) {
       filteredKebabs = filteredKebabs.filter((kebab) =>
-        kebab.name.toLowerCase().includes(searchQuery.toLowerCase())
+        kebab.name.toLowerCase().includes(query.toLowerCase())
       );
     }
 
-    if (showOpenNow) {
+    if (sauces.length > 0) {
+      filteredKebabs = filteredKebabs.filter((kebab) =>
+        sauces.every((sauce) => kebab.sauces?.includes(sauce))
+      );
+    }
+
+    if (meats.length > 0) {
+      filteredKebabs = filteredKebabs.filter((kebab) =>
+        meats.every((meat) => kebab.meats?.includes(meat))
+      );
+    }
+
+    if (openNow) {
       filteredKebabs = filteredKebabs.filter(isOpenNow);
     }
+
+    filteredKebabs = sortKebabs(filteredKebabs, order);
 
     onSearch(filteredKebabs);
   };
@@ -79,26 +117,6 @@ export default function SearchPanel({ kebabs, onSearch }) {
         return b.name.localeCompare(a.name);
       }
     });
-  };
-
-  const toggleOpenNow = () => {
-    setShowOpenNow(!showOpenNow);
-
-    let filteredKebabs = kebabs;
-
-    if (searchQuery) {
-      filteredKebabs = filteredKebabs.filter((kebab) =>
-        kebab.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    if (!showOpenNow) {
-      filteredKebabs = filteredKebabs.filter(isOpenNow);
-    }
-
-    filteredKebabs = sortKebabs(filteredKebabs, sortOrder);
-
-    onSearch(filteredKebabs);
   };
 
   return (
@@ -153,7 +171,7 @@ export default function SearchPanel({ kebabs, onSearch }) {
         }`}
       >
         <div className="mt-4 bg-gray-100 p-4 rounded-lg shadow-inner">
-          <label className="flex items-center space-x-2">
+          <label className="flex items-center space-x-2 mb-4">
             <input
               type="checkbox"
               checked={showOpenNow}
@@ -162,6 +180,42 @@ export default function SearchPanel({ kebabs, onSearch }) {
             />
             <span>Aktualnie otwarte</span>
           </label>
+
+          {/* Sekcja sosów */}
+          <div className="mb-4">
+            <h3 className="text-gray-700 font-medium mb-2">Sosy:</h3>
+            <div className="grid grid-cols-4 gap-y-2 gap-x-4">
+              {allSauces.map((sauce) => (
+                <label key={sauce} className="flex items-start space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedSauces.includes(sauce)}
+                    onChange={() => handleSauceToggle(sauce)}
+                    className="w-4 h-4"
+                  />
+                  <span className="break-words text-sm">{sauce}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Sekcja mięs */}
+          <div className="mb-4">
+            <h3 className="text-gray-700 font-medium mb-2">Mięsa:</h3>
+            <div className="grid grid-cols-4 gap-y-2 gap-x-4">
+              {allMeats.map((meat) => (
+                <label key={meat} className="flex items-start space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedMeats.includes(meat)}
+                    onChange={() => handleMeatToggle(meat)}
+                    className="w-4 h-4"
+                  />
+                  <span className="break-words text-sm">{meat}</span>
+                </label>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
