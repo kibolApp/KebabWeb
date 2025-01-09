@@ -169,11 +169,6 @@ export default function AdminPanel() {
   const kebabId = selectedKebab?.id;
 
   const openKebabModal = (kebab) => {
-    const parsedOpeningHours =
-      typeof kebab.opening_hours === "string"
-        ? JSON.parse(kebab.opening_hours || "{}")
-        : kebab.opening_hours || {};
-  
         setSelectedKebab({
           ...kebab,
           opening_hours: kebab.opening_hours || {},
