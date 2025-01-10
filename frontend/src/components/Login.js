@@ -14,22 +14,31 @@ export default function Login({ toggleForm }) {
   const { login } = useAppContext()
 
   const handleLogin = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
       const response = await axiosClient.post('/login', {
         email,
         password,
-      })
+      });
+  
       if (response.status === 200) {
-        toast.success('Logowanie zakończone sukcesem!', { autoClose: 2000 })
-        login(response.data.token)
-        setTimeout(() => navigate('/map'), 2000)
+        toast.success('Logowanie zakończone sukcesem!', { autoClose: 2000 });
+        login(response.data.token);
+
+        const userResponse = await axiosClient.get('/getCurrentUser', {
+          headers: { Authorization: `Bearer ${response.data.token}` },
+        });
+        
+        console.log('Zalogowany użytkownik:', userResponse.data);
+  
+        setTimeout(() => navigate('/map'), 2000);
       }
     } catch (error) {
-      toast.error('Błąd logowania. Sprawdź swoje dane.', { autoClose: 2000 })
-      console.error('Error logging in:', error)
+      toast.error('Błąd logowania. Sprawdź swoje dane.', { autoClose: 2000 });
+      console.error('Error logging in:', error);
     }
-  }
+  };
+  
 
   return (
     <div className="absolute bottom-0 right-0 size-full md:w-1/2 bg-white p-4 md:p-8 rounded-lg shadow-md transition-opacity duration-1000 ease-in-out delay-300">

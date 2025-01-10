@@ -169,48 +169,34 @@ export default function AdminPanel() {
   const kebabId = selectedKebab?.id;
 
   const openKebabModal = (kebab) => {
-    const parsedOpeningHours =
-      typeof kebab.opening_hours === "string"
-        ? JSON.parse(kebab.opening_hours || "{}")
-        : kebab.opening_hours || {};
-  
-    setSelectedKebab({
-      ...kebab,
-      logo: kebab.logo,
-      opening_hours: parsedOpeningHours,
-      ordering_options: Array.isArray(kebab.ordering_options)
-        ? kebab.ordering_options
-        : JSON.parse(kebab.ordering_options || "[]"),
-      sauces: Array.isArray(kebab.sauces)
-        ? kebab.sauces
-        : JSON.parse(kebab.sauces || "[]"),
-      pages: Array.isArray(kebab.pages)
-        ? kebab.pages
-        : JSON.parse(kebab.pages || "[]"),
-    });
-  
-    setInitialKebab({
-      ...kebab,
-      opening_hours: parsedOpeningHours,
-      ordering_options: Array.isArray(kebab.ordering_options)
-        ? kebab.ordering_options
-        : JSON.parse(kebab.ordering_options || "[]"),
-      sauces: Array.isArray(kebab.sauces)
-        ? kebab.sauces
-        : JSON.parse(kebab.sauces || "[]"),
-      pages: Array.isArray(kebab.pages)
-        ? kebab.pages
-        : JSON.parse(kebab.pages || "[]"),
-    });
-  
-    setLocalSauces(Array.isArray(kebab.sauces) ? kebab.sauces : JSON.parse(kebab.sauces || "[]"));
-    setLocalMeats([...kebab.meats]);
-    setLocalStatus(kebab.status || "exists");
-    setLocalOpeningHours(parsedOpeningHours);
-    setLocalLogo(null);
-    setLocalOrderingOptions(Array.isArray(kebab.ordering_options) ? [...kebab.ordering_options] : []);
-    setLocalPages([...kebab.pages]);
-    setIsKebabModalOpen(true);
+        setSelectedKebab({
+          ...kebab,
+          opening_hours: kebab.opening_hours || {},
+          ordering_options: Array.isArray(kebab.ordering_options)
+            ? kebab.ordering_options
+            : [],
+          sauces: Array.isArray(kebab.sauces) ? kebab.sauces : [],
+          pages: kebab.pages || {},
+        });
+      
+        setInitialKebab({
+          ...kebab,
+          opening_hours: kebab.opening_hours || {},
+          ordering_options: Array.isArray(kebab.ordering_options)
+            ? kebab.ordering_options
+            : [],
+          sauces: Array.isArray(kebab.sauces) ? kebab.sauces : [],
+          pages: kebab.pages || {},
+        });
+      
+        setLocalSauces(Array.isArray(kebab.sauces) ? kebab.sauces : []);
+        setLocalMeats([...kebab.meats]);
+        setLocalStatus(kebab.status || "exists");
+        setLocalOpeningHours(kebab.opening_hours || {});
+        setLocalLogo(null);
+        setLocalOrderingOptions(Array.isArray(kebab.ordering_options) ? kebab.ordering_options : []);
+        setLocalPages(kebab.pages || {});
+        setIsKebabModalOpen(true);
   };
 
   const handleLogoChange = (file) => {
@@ -848,7 +834,7 @@ export default function AdminPanel() {
                     <input
                       type="number"
                       step="0.000001"
-                      value={selectedKebab.coordinates.latitude}
+                      value={selectedKebab.coordinates.lat}
                       onChange={(e) =>
                         setSelectedKebab({
                           ...selectedKebab,
@@ -868,7 +854,7 @@ export default function AdminPanel() {
                     <input
                       type="number"
                       step="0.000001"
-                      value={selectedKebab.coordinates.longitude}
+                      value={selectedKebab.coordinates.lng}
                       onChange={(e) =>
                         setSelectedKebab({
                           ...selectedKebab,

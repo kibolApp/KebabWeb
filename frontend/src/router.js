@@ -1,9 +1,10 @@
-import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Home from './pages/Home.js'
-import Map from './pages/Map.js'
-import AuthPage from './pages/AuthPage.js'
-import AdminPanel from './pages/AdminPanel.js'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home.js';
+import Map from './pages/Map.js';
+import AuthPage from './pages/AuthPage.js';
+import AdminPanel from './pages/AdminPanel.js';
+import ProtectedRoute from './components/ProtectedRoute.js';
 
 const AppRouter = () => (
   <Router>
@@ -11,9 +12,16 @@ const AppRouter = () => (
       <Route path="/" element={<Home />} />
       <Route path="/map" element={<Map />} />
       <Route path="/auth" element={<AuthPage />} />
-      <Route path="/admin" element={<AdminPanel />} />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <AdminPanel />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   </Router>
-)
+);
 
-export default AppRouter
+export default AppRouter;
