@@ -9,6 +9,8 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import axiosClient from '../axiosClient.js';
 import kebab_icon from '../img/kebab_icon.png';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Map() {
   const legnicaBounds = [
@@ -30,6 +32,7 @@ export default function Map() {
       })
       .catch((error) => {
         console.error('Błąd pobierania kebabów:', error);
+        toast.error('Błąd pobrania szczegółów kebabów z serwera. Odśwież stronę lub skontaktuj się z administratorem.');
       });
   }, []);
 
@@ -112,6 +115,7 @@ export default function Map() {
         </div>
       </main>
       <Footer />
+      <ToastContainer position="top-center" autoClose={5000} hideProgressBar />
     </div>
   );
 }

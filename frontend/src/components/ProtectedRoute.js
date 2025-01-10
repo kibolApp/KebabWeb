@@ -23,7 +23,7 @@ export default function ProtectedRoute({ children }) {
   }, []);
 
   if (isAuthorized === null) {
-    return <div>Ładowanie...</div>; // Opcjonalny loader
+    return <div>Ładowanie...</div>;
   }
 
   return isAuthorized ? children : <Navigate to="/map" />;
