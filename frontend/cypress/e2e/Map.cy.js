@@ -4,7 +4,6 @@ describe('Map Page Interactions', () => {
       cy.get('input[placeholder="Adres E-mail"]').type('admin@admin.pl');
       cy.get('input[placeholder="Hasło"]').type('admin');
       cy.get('button[type="submit"]').click();
-      cy.wait(2000);
   
       cy.contains('Logowanie zakończone sukcesem!').should('be.visible');
       cy.url().should('include', '/map');
