@@ -4,6 +4,7 @@ describe('Filter and search for a kebab', () => {
       cy.get('input[placeholder="Adres E-mail"]').type('admin@admin.pl');
       cy.get('input[placeholder="Hasło"]').type('admin');
       cy.get('button[type="submit"]').click();
+      cy.wait(2000);
   
       cy.url().should('include', '/map');
   
