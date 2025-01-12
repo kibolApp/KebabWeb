@@ -191,13 +191,49 @@ const translateStatus = (status) => {
                 </div>
 
                 {kebab.ordering_options && kebab.ordering_options.length > 0 && (
-                  <div className="mt-4">
-                    <p className="text-lg font-bold text-gray-700">Opcje zamówień:</p>
+                  <div className="mt-2">
+                    <p className="text-md font-bold text-gray-700">Opcje zamówień:</p>
                     <div className="mt-2">
                       {kebab.ordering_options.map((option, index) => (
-                        <p key={index} className="text-base text-gray-800">
+                        <p key={index} className="text-base text-gray-700">
                           {option}
                         </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {kebab.pages && Object.keys(kebab.pages).length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-gray-700 font-bold">Strony:</p>
+                    <ul className="text-gray-700 list-disc pl-5">
+                      {Object.entries(kebab.pages).map(([key, value]) => (
+                        <li key={key}>
+                          <a
+                            href={value}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500 underline"
+                          >
+                            {key}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {kebab.comments && kebab.comments.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-gray-700 font-bold">Komentarze:</p>
+                    <div className="text-gray-700">
+                      {kebab.comments.map((commentObj, index) => (
+                        <div key={index} className="mb-2">
+                          <span className="font-semibold">
+                            {commentObj.name || `Użytkownik #${commentObj.id_user}`}: 
+                          </span>
+                          <span> {commentObj.comment}</span>
+                        </div>
                       ))}
                     </div>
                   </div>
