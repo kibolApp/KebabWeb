@@ -1,3 +1,4 @@
+/* eslint-env cypress */
 // ***********************************************************
 // This example support/component.js is processed and
 // loaded automatically before your test files.

@@ -1,3 +1,5 @@
+/* eslint-env cypress */
+
 describe('User Registration with Existing Email', () => {
     it('Shows an error when trying to register with an existing email', () => {
       cy.visit('http://localhost:3000/auth');

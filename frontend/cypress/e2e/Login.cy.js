@@ -1,3 +1,5 @@
+/* eslint-env cypress */
+
 describe('User Login', () => {
     it('Logs in an existing user successfully', () => {
       cy.visit('http://localhost:3000/auth');

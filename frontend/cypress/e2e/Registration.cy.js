@@ -1,3 +1,5 @@
+/* eslint-env cypress */
+
 const uniqueEmail = `testuser+${Date.now()}@example.com`;
 
 describe('User Registration', () => {

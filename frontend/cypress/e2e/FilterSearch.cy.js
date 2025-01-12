@@ -1,10 +1,13 @@
+/* eslint-env cypress */
+
 describe('Filter and search for a kebab', () => {
     it('Searches for a kebab by name and expands its details', () => {
       cy.visit('http://localhost:3000/auth');
       cy.get('input[placeholder="Adres E-mail"]').type('admin@admin.pl');
       cy.get('input[placeholder="Hasło"]').type('admin');
       cy.get('button[type="submit"]').click();
-      cy.wait(2000);
+      cy.intercept('GET', '/api/kebabs').as('fetchKebabs');
+      cy.wait('@fetchKebabs');
   
       cy.url().should('include', '/map');
   

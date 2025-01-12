@@ -1,3 +1,5 @@
+/* eslint-env cypress */
+
 describe('Navigate between Home and Map', () => {
   it('Navigates from Home to Map and back to Home', () => {
     cy.visit('http://localhost:3000'); 

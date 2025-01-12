@@ -1,3 +1,5 @@
+/* eslint-env cypress */
+
 const suggestionText = `To jest testowa sugestia ${Date.now()}`;
 
 describe('Suggestion feature', () => {

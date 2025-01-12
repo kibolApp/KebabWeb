@@ -1,10 +1,13 @@
+/* eslint-env cypress */
+
 describe('Map Page Interactions', () => {
     it('Logs in and interacts with the map', () => {
       cy.visit('http://localhost:3000/auth');
       cy.get('input[placeholder="Adres E-mail"]').type('admin@admin.pl');
       cy.get('input[placeholder="Hasło"]').type('admin');
       cy.get('button[type="submit"]').click();
-      cy.wait(2000);
+      cy.intercept('GET', '/api/kebabs').as('fetchKebabs');
+      cy.wait('@fetchKebabs');
   
       cy.contains('Logowanie zakończone sukcesem!').should('be.visible');
       cy.url().should('include', '/map');
