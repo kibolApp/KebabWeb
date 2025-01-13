@@ -154,7 +154,18 @@ export default function SearchPanel({ kebabs, onSearch }) {
   
     onSearch(filteredKebabs);
   };
+
+  const kebabStatusCounts = () => {
+    const statuses = { exists: 0, closed: 0, planned: 0 };
+    kebabs.forEach((kebab) => {
+      if (statuses[kebab.status] !== undefined) {
+        statuses[kebab.status]++;
+      }
+    });
+    return statuses;
+  };
   
+  const { exists, closed, planned } = kebabStatusCounts();
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md mb-4">
@@ -165,6 +176,12 @@ export default function SearchPanel({ kebabs, onSearch }) {
         onChange={handleSearchChange}
         className="w-full p-2 border rounded-lg mb-2"
       />
+      <div className="mb-4 flex justify-between items-center bg-gray-100 p-3 rounded-lg shadow-sm">
+        <p className="text-green-600 font-bold">Otwarte: {exists}</p>
+        <p className="text-red-600 font-bold">Zamknięte: {closed}</p>
+        <p className="text-blue-600 font-bold">Planowane: {planned}</p>
+      </div>
+
       <div className="mb-2 text-gray-700 font-medium">Sortowanie po nazwie:</div>
       <div className="flex space-x-2 mb-4">
         <button
