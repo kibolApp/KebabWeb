@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosClient = axios.create({
-  baseURL: 'https://sponge-climbing-adder.ngrok-free.app/api',
+  baseURL: 'https://legible-freely-wren.ngrok-free.app/api',
 });
 
 axiosClient.interceptors.request.use((config) => {

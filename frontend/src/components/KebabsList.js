@@ -135,7 +135,7 @@ const translateStatus = (status) => {
 
                 <FontAwesomeIcon
                   icon={faArrowDown}
-                  className={`text-gray-600 text-lg transform transition-transform duration-500 ${
+                  className={`text-gray-600 text-lg transform transition-transform duration-500 hover: cursor-pointer ${
                     openIndex === index ? 'rotate-180' : ''
                   }`}
                   onClick={() => toggleDetails(index)}
@@ -206,31 +206,31 @@ const translateStatus = (status) => {
                 {kebab.pages && Object.keys(kebab.pages).length > 0 && (
                   <div className="mt-2">
                     <p className="text-gray-700 font-bold">Strony:</p>
-                    <ul className="text-gray-700 list-disc pl-5">
+                    <div className="text-gray-700">
                       {Object.entries(kebab.pages).map(([key, value]) => (
-                        <li key={key}>
+                        <div key={key}>
                           <a
                             href={value}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-500 underline"
+                            className="font-bold capitalize text-blue-500 hover:text-blue-700 cursor-pointer"
                           >
                             {key}
                           </a>
-                        </li>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                 )}
 
                 {kebab.comments && kebab.comments.length > 0 && (
                   <div className="mt-4">
                     <p className="text-gray-700 font-bold">Komentarze:</p>
-                    <div className="text-gray-700">
+                    <div className="text-gray-700 max-h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
                       {kebab.comments.map((commentObj, index) => (
                         <div key={index} className="mb-2">
                           <span className="font-semibold">
-                            {commentObj.name || `Użytkownik #${commentObj.id_user}`}: 
+                            {commentObj.name || `Użytkownik #${commentObj.id_user}`}:
                           </span>
                           <span> {commentObj.comment}</span>
                         </div>

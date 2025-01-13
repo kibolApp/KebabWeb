@@ -10,6 +10,8 @@ export default function SearchPanel({ kebabs, onSearch }) {
   const [selectedSauces, setSelectedSauces] = useState([]);
   const [selectedMeats, setSelectedMeats] = useState([]);
   const [selectedOrderingOptions, setSelectedOrderingOptions] = useState([]);
+  const [selectedPages, setSelectedPages] = useState([]);
+
 
   const allSauces = Array.from(
     new Set(kebabs.flatMap((kebab) => kebab.sauces || []))
@@ -22,6 +24,10 @@ export default function SearchPanel({ kebabs, onSearch }) {
   const allOrderingOptions = Array.from(
     new Set(kebabs.flatMap((kebab) => kebab.ordering_options || []))
   );
+
+  const allPages = Array.from(
+    new Set(kebabs.flatMap((kebab) => Object.keys(kebab.pages || {})))
+  );  
 
   const getCurrentTimeDetails = () => {
     const now = new Date();
@@ -87,13 +93,22 @@ export default function SearchPanel({ kebabs, onSearch }) {
       applyFilters(searchQuery, selectedSauces, selectedMeats, showOpenNow, sortOrder, updatedOptions);
   };
 
+  const handlePageToggle = (page) => {
+    const updatedPages = selectedPages.includes(page)
+      ? selectedPages.filter((p) => p !== page)
+      : [...selectedPages, page];
+  
+    setSelectedPages(updatedPages);
+    applyFilters(searchQuery, selectedSauces, selectedMeats, showOpenNow, sortOrder, selectedOrderingOptions, updatedPages);
+  };
+
   const toggleOpenNow = () => {
     const updatedShowOpenNow = !showOpenNow;
     setShowOpenNow(updatedShowOpenNow);
     applyFilters(searchQuery, selectedSauces, selectedMeats, updatedShowOpenNow, sortOrder);
   };
 
-  const applyFilters = (query, sauces, meats, openNow, order, orderingOptions = []) => {
+  const applyFilters = (query, sauces, meats, openNow, order, orderingOptions = [], pages = []) => {
     let filteredKebabs = kebabs;
   
     if (query) {
@@ -120,6 +135,12 @@ export default function SearchPanel({ kebabs, onSearch }) {
       );
     }
   
+    if (pages.length > 0) {
+      filteredKebabs = filteredKebabs.filter((kebab) =>
+        pages.every((page) => Object.keys(kebab.pages || {}).includes(page))
+      );
+    }
+  
     if (openNow) {
       filteredKebabs = filteredKebabs.filter(isOpenNow);
     }
@@ -133,6 +154,7 @@ export default function SearchPanel({ kebabs, onSearch }) {
   
     onSearch(filteredKebabs);
   };
+  
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md mb-4">
@@ -245,6 +267,24 @@ export default function SearchPanel({ kebabs, onSearch }) {
                     className="w-4 h-4"
                   />
                   <span className="break-words text-sm">{option}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Strony */}
+          <div className="mb-4">
+            <h3 className="text-gray-700 font-medium mb-2">Strony:</h3>
+            <div className="grid grid-cols-4 gap-y-2 gap-x-4">
+              {allPages.map((page) => (
+                <label key={page} className="flex items-start space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedPages.includes(page)}
+                    onChange={() => handlePageToggle(page)}
+                    className="w-4 h-4"
+                  />
+                  <span className="break-words text-sm capitalize">{page}</span>
                 </label>
               ))}
             </div>
