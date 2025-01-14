@@ -176,7 +176,7 @@ export default function AdminPanel() {
             ? kebab.ordering_options
             : [],
           sauces: Array.isArray(kebab.sauces) ? kebab.sauces : [],
-          pages: kebab.pages || {},
+          page: Array.isArray(kebab.page) ? kebab.page : [],
         });
       
         setInitialKebab({
@@ -186,7 +186,7 @@ export default function AdminPanel() {
             ? kebab.ordering_options
             : [],
           sauces: Array.isArray(kebab.sauces) ? kebab.sauces : [],
-          pages: kebab.pages || {},
+          page: Array.isArray(kebab.page) ? kebab.page : [],
         });
       
         setLocalSauces(Array.isArray(kebab.sauces) ? kebab.sauces : []);
@@ -195,7 +195,7 @@ export default function AdminPanel() {
         setLocalOpeningHours(kebab.opening_hours || {});
         setLocalLogo(null);
         setLocalOrderingOptions(Array.isArray(kebab.ordering_options) ? kebab.ordering_options : []);
-        setLocalPages(kebab.pages || {});
+        setLocalPages(Array.isArray(kebab.page) ? kebab.page : []);
         setIsKebabModalOpen(true);
   };
 
@@ -394,8 +394,8 @@ export default function AdminPanel() {
       });
     }
 
-    if (JSON.stringify(localPages) !== JSON.stringify(initialKebab.pages)) {
-      const pagesToAdd = localPages.filter((page) => !initialKebab.pages?.includes(page));
+    if (JSON.stringify(localPages) !== JSON.stringify(initialKebab.page)) {
+      const pagesToAdd = localPages.filter((page) => !initialKebab.page?.includes(page));
       const pagesToRemove = initialKebab.pages?.filter((page) => !localPages.includes(page));
   
       pagesToAdd.forEach((new_page) => {
@@ -1151,33 +1151,33 @@ export default function AdminPanel() {
 
               {/* Strona internetowa */}
               <div className="mb-4">
-                  <label className="font-bold block">Strony internetowe:</label>
-                  {Array.isArray(localPages) &&
-                    localPages.map((page, index) => (
-                      <div key={index} className="flex items-center space-x-2 mb-2">
-                        <input
-                          type="text"
-                          value={page}
-                          onChange={(e) => {
-                              const updatedPages = [...localPages];
-                              updatedPages[index] = e.target.value.trim();
-                              setLocalPages(updatedPages);
-                          }}
-                          className="w-full px-4 py-2 border rounded"
-                          placeholder="Wprowadź URL strony"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                              const updatedPages = localPages.filter((_, i) => i !== index);
-                              setLocalPages(updatedPages);
-                          }}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          Usuń
-                        </button>
-                      </div>
-                    ))}
+                <label className="font-bold block">Strony internetowe:</label>
+                {Array.isArray(localPages) &&
+                  localPages.map((page, index) => (
+                    <div key={index} className="flex items-center space-x-2 mb-2">
+                      <input
+                        type="text"
+                        value={page}
+                        onChange={(e) => {
+                          const updatedPages = [...localPages];
+                          updatedPages[index] = e.target.value.trim();
+                          setLocalPages(updatedPages);
+                        }}
+                        className="w-full px-4 py-2 border rounded"
+                        placeholder="Wprowadź URL strony"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updatedPages = localPages.filter((_, i) => i !== index);
+                          setLocalPages(updatedPages);
+                        }}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        Usuń
+                      </button>
+                    </div>
+                  ))}
                   <button
                       type="button"
                       onClick={() => setLocalPages([...localPages, ""])}
