@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\UserRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -24,9 +24,7 @@ class ChangeEmailRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "oldEmail" => "required|email",
             "newEmail" => "required|email|unique:users,email",
-            "confirmEmail" => "required|email",
         ];
     }
 }

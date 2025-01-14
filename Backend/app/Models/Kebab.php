@@ -49,4 +49,11 @@ class Kebab extends Model
         "ordering_options" => "array",
         "comments" => "array",
     ];
+
+    public function getPyszneLink(): ?string
+    {
+        $pages = json_decode($this->pages, true);
+
+        return $pages["pyszne.pl"] ?? null;
+    }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\UserRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -24,7 +24,6 @@ class ChangeNameRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "oldName" => "required",
             "newName" => "required",
         ];
     }

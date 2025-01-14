@@ -1,0 +1,1379 @@
+openapi: 3.0.3
+info:
+  title: 'Kebab Api'
+  description: ''
+  version: 1.0.0
+servers:
+  -
+    url: api/documentation
+paths:
+  /api/register:
+    post:
+      summary: ''
+      operationId: postApiRegister
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ''
+                  example: est
+                  nullable: false
+                email:
+                  type: string
+                  description: 'Must be a valid email address.'
+                  example: igibson@example.com
+                  nullable: false
+                password:
+                  type: string
+                  description: ''
+                  example: corporis
+                  nullable: false
+              required:
+                - name
+                - email
+                - password
+      security: []
+  /api/login:
+    post:
+      summary: ''
+      operationId: postApiLogin
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: 'Must be a valid email address. The <code>email</code> of an existing record in the users table.'
+                  example: kirlin.tara@example.com
+                  nullable: false
+                password:
+                  type: string
+                  description: ''
+                  example: expedita
+                  nullable: false
+              required:
+                - email
+                - password
+      security: []
+  /api/kebabs:
+    get:
+      summary: ''
+      operationId: getApiKebabs
+      description: ''
+      parameters: []
+      responses:
+        404:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The route api/kebabs could not be found.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The route api/kebabs could not be found.'
+      tags:
+        - Endpoints
+      security: []
+  /api/scrape-reviews:
+    get:
+      summary: ''
+      operationId: getApiScrapeReviews
+      description: ''
+      parameters: []
+      responses:
+        404:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The route api/scrape-reviews could not be found.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The route api/scrape-reviews could not be found.'
+      tags:
+        - Endpoints
+      security: []
+  /api/logout:
+    post:
+      summary: ''
+      operationId: postApiLogout
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+  /api/getCurrentUser:
+    get:
+      summary: ''
+      operationId: getApiGetCurrentUser
+      description: ''
+      parameters: []
+      responses:
+        404:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The route api/getCurrentUser could not be found.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The route api/getCurrentUser could not be found.'
+      tags:
+        - Endpoints
+      security: []
+  '/api/fav/{id}':
+    get:
+      summary: ''
+      operationId: getApiFavId
+      description: ''
+      parameters: []
+      responses:
+        404:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The route api/fav/iste could not be found.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The route api/fav/iste could not be found.'
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the fav.'
+        example: iste
+        required: true
+        schema:
+          type: string
+  /api/addfav:
+    post:
+      summary: ''
+      operationId: postApiAddfav
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+                  description: ''
+                  example: voluptatem
+                  nullable: false
+                kebab_id:
+                  type: string
+                  description: ''
+                  example: ullam
+                  nullable: false
+              required:
+                - user_id
+                - kebab_id
+      security: []
+  /api/remfav:
+    post:
+      summary: ''
+      operationId: postApiRemfav
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+                  description: ''
+                  example: eum
+                  nullable: false
+                kebab_id:
+                  type: string
+                  description: ''
+                  example: dicta
+                  nullable: false
+              required:
+                - user_id
+                - kebab_id
+      security: []
+  '/api/changeName/{id}':
+    put:
+      summary: ''
+      operationId: putApiChangeNameId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newName:
+                  type: string
+                  description: ''
+                  example: voluptas
+                  nullable: false
+              required:
+                - newName
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the changeName.'
+        example: id
+        required: true
+        schema:
+          type: string
+  '/api/changePassword/{id}':
+    put:
+      summary: ''
+      operationId: putApiChangePasswordId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newPassword:
+                  type: string
+                  description: ''
+                  example: eligendi
+                  nullable: false
+                confirmPassword:
+                  type: string
+                  description: ''
+                  example: possimus
+                  nullable: false
+              required:
+                - newPassword
+                - confirmPassword
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the changePassword.'
+        example: culpa
+        required: true
+        schema:
+          type: string
+  '/api/changeEmail/{id}':
+    put:
+      summary: ''
+      operationId: putApiChangeEmailId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newEmail:
+                  type: string
+                  description: 'Must be a valid email address.'
+                  example: ervin.kuphal@example.net
+                  nullable: false
+              required:
+                - newEmail
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the changeEmail.'
+        example: et
+        required: true
+        schema:
+          type: string
+  /api/suggestions:
+    post:
+      summary: ''
+      operationId: postApiSuggestions
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: bghrjiaodyjq
+                  nullable: false
+                contents:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: vyjf
+                  nullable: false
+              required:
+                - user
+                - contents
+      security: []
+    get:
+      summary: ''
+      operationId: getApiSuggestions
+      description: ''
+      parameters: []
+      responses:
+        404:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The route api/suggestions could not be found.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The route api/suggestions could not be found.'
+      tags:
+        - Endpoints
+      security: []
+  '/api/kebabs/{kebabId}/comments':
+    post:
+      summary: ''
+      operationId: postApiKebabsKebabIdComments
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id_user:
+                  type: integer
+                  description: ''
+                  example: 20
+                  nullable: false
+                comment:
+                  type: string
+                  description: ''
+                  example: aliquam
+                  nullable: false
+              required:
+                - id_user
+                - comment
+      security: []
+    delete:
+      summary: ''
+      operationId: deleteApiKebabsKebabIdComments
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id_user:
+                  type: integer
+                  description: ''
+                  example: 12
+                  nullable: false
+                comment:
+                  type: string
+                  description: ''
+                  example: inventore
+                  nullable: false
+              required:
+                - id_user
+                - comment
+      security: []
+    parameters:
+      -
+        in: path
+        name: kebabId
+        description: ''
+        example: reprehenderit
+        required: true
+        schema:
+          type: string
+  '/api/changeUserRole/{id}':
+    put:
+      summary: ''
+      operationId: putApiChangeUserRoleId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isAdmin:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: false
+              required:
+                - isAdmin
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the changeUserRole.'
+        example: nesciunt
+        required: true
+        schema:
+          type: string
+  '/api/deleteUser/{id}':
+    delete:
+      summary: ''
+      operationId: deleteApiDeleteUserId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the deleteUser.'
+        example: minima
+        required: true
+        schema:
+          type: string
+  /api/getAllUsers:
+    get:
+      summary: ''
+      operationId: getApiGetAllUsers
+      description: ''
+      parameters: []
+      responses:
+        404:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The route api/getAllUsers could not be found.'
+                properties:
+                  message:
+                    type: string
+                    example: 'The route api/getAllUsers could not be found.'
+      tags:
+        - Endpoints
+      security: []
+  /api/addNewUser:
+    post:
+      summary: ''
+      operationId: postApiAddNewUser
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ''
+                  example: eveniet
+                  nullable: false
+                email:
+                  type: string
+                  description: 'Must be a valid email address.'
+                  example: tyrique37@example.org
+                  nullable: false
+                password:
+                  type: string
+                  description: ''
+                  example: qui
+                  nullable: false
+              required:
+                - name
+                - email
+                - password
+      security: []
+  /api/addKebab:
+    post:
+      summary: ''
+      operationId: postApiAddKebab
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                logo:
+                  type: string
+                  description: ''
+                  example: quis
+                  nullable: false
+                name:
+                  type: string
+                  description: ''
+                  example: qui
+                  nullable: false
+                address:
+                  type: string
+                  description: ''
+                  example: dicta
+                  nullable: false
+                coordinates:
+                  type: string
+                  description: ''
+                  example: porro
+                  nullable: false
+                sauces:
+                  type: string
+                  description: ''
+                  example: impedit
+                  nullable: false
+                meats:
+                  type: string
+                  description: ''
+                  example: dolorem
+                  nullable: false
+                status:
+                  type: string
+                  description: ''
+                  example: rem
+                  nullable: false
+                opening_hours:
+                  type: string
+                  description: ''
+                  example: eligendi
+                  nullable: false
+                opening_year:
+                  type: string
+                  description: ''
+                  example: eveniet
+                  nullable: false
+                closing_year:
+                  type: string
+                  description: ''
+                  example: omnis
+                  nullable: false
+                is_crafted:
+                  type: string
+                  description: ''
+                  example: molestias
+                  nullable: false
+                is_premises:
+                  type: string
+                  description: ''
+                  example: excepturi
+                  nullable: false
+                is_chainstore:
+                  type: string
+                  description: ''
+                  example: iste
+                  nullable: false
+                ordering_options:
+                  type: string
+                  description: ''
+                  example: nam
+                  nullable: false
+              required:
+                - logo
+                - name
+                - address
+                - coordinates
+                - sauces
+                - meats
+                - status
+                - opening_hours
+                - opening_year
+                - closing_year
+                - is_crafted
+                - is_premises
+                - is_chainstore
+                - ordering_options
+      security: []
+  '/api/kebabs/{id}':
+    delete:
+      summary: ''
+      operationId: deleteApiKebabsId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the kebab.'
+        example: architecto
+        required: true
+        schema:
+          type: string
+  '/api/kebabs/{kebabId}/logo':
+    put:
+      summary: ''
+      operationId: putApiKebabsKebabIdLogo
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: kebabId
+        description: ''
+        example: necessitatibus
+        required: true
+        schema:
+          type: string
+  '/api/kebabs/{kebabId}/name':
+    put:
+      summary: ''
+      operationId: putApiKebabsKebabIdName
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ''
+                  example: molestiae
+                  nullable: false
+              required:
+                - name
+      security: []
+    parameters:
+      -
+        in: path
+        name: kebabId
+        description: ''
+        example: minima
+        required: true
+        schema:
+          type: string
+  '/api/kebabs/{kebabId}/address':
+    put:
+      summary: ''
+      operationId: putApiKebabsKebabIdAddress
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: hasoytxcdkunpxsulsofhjcbd
+                  nullable: false
+              required:
+                - address
+      security: []
+    parameters:
+      -
+        in: path
+        name: kebabId
+        description: ''
+        example: aut
+        required: true
+        schema:
+          type: string
+  '/api/kebabs/{kebabId}/coordinates':
+    put:
+      summary: ''
+      operationId: putApiKebabsKebabIdCoordinates
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                coordinates:
+                  type: object
+                  description: ''
+                  example: []
+                  nullable: false
+                  properties: {  }
+              required:
+                - coordinates
+      security: []
+    parameters:
+      -
+        in: path
+        name: kebabId
+        description: ''
+        example: autem
+        required: true
+        schema:
+          type: string
+  '/api/kebabs/{kebabId}/sauce':
+    post:
+      summary: ''
+      operationId: postApiKebabsKebabIdSauce
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sauce:
+                  type: string
+                  description: ''
+                  example: nulla
+                  nullable: false
+              required:
+                - sauce
+      security: []
+    delete:
+      summary: ''
+      operationId: deleteApiKebabsKebabIdSauce
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sauce:
+                  type: string
+                  description: ''
+                  example: est
+                  nullable: false
+              required:
+                - sauce
+      security: []
+    parameters:
+      -
+        in: path
+        name: kebabId
+        description: ''
+        example: accusamus
+        required: true
+        schema:
+          type: string
+  '/api/kebabs/{kebabId}/meat':
+    post:
+      summary: ''
+      operationId: postApiKebabsKebabIdMeat
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                meat:
+                  type: string
+                  description: ''
+                  example: voluptates
+                  nullable: false
+              required:
+                - meat
+      security: []
+    delete:
+      summary: ''
+      operationId: deleteApiKebabsKebabIdMeat
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                meat:
+                  type: string
+                  description: ''
+                  example: suscipit
+                  nullable: false
+              required:
+                - meat
+      security: []
+    parameters:
+      -
+        in: path
+        name: kebabId
+        description: ''
+        example: et
+        required: true
+        schema:
+          type: string
+  '/api/kebabs/{kebabId}/status':
+    put:
+      summary: ''
+      operationId: putApiKebabsKebabIdStatus
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  description: ''
+                  example: exists
+                  nullable: false
+                  enum:
+                    - exists
+                    - closed
+                    - planned
+              required:
+                - status
+      security: []
+    parameters:
+      -
+        in: path
+        name: kebabId
+        description: ''
+        example: doloribus
+        required: true
+        schema:
+          type: string
+  '/api/kebabs/{kebabId}/opening-hours':
+    post:
+      summary: ''
+      operationId: postApiKebabsKebabIdOpeningHours
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                day:
+                  type: string
+                  description: ''
+                  example: saturday
+                  nullable: false
+                  enum:
+                    - monday
+                    - tuesday
+                    - wednesday
+                    - thursday
+                    - friday
+                    - saturday
+                    - sunday
+                hours:
+                  type: string
+                  description: ''
+                  example: recusandae
+                  nullable: false
+              required:
+                - day
+                - hours
+      security: []
+    delete:
+      summary: ''
+      operationId: deleteApiKebabsKebabIdOpeningHours
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                day:
+                  type: string
+                  description: ''
+                  example: wednesday
+                  nullable: false
+                  enum:
+                    - monday
+                    - tuesday
+                    - wednesday
+                    - thursday
+                    - friday
+                    - saturday
+                    - sunday
+              required:
+                - day
+      security: []
+    put:
+      summary: ''
+      operationId: putApiKebabsKebabIdOpeningHours
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                day:
+                  type: string
+                  description: ''
+                  example: friday
+                  nullable: false
+                  enum:
+                    - monday
+                    - tuesday
+                    - wednesday
+                    - thursday
+                    - friday
+                    - saturday
+                    - sunday
+                hours:
+                  type: string
+                  description: ''
+                  example: vel
+                  nullable: false
+              required:
+                - day
+                - hours
+      security: []
+    parameters:
+      -
+        in: path
+        name: kebabId
+        description: ''
+        example: quam
+        required: true
+        schema:
+          type: string
+  '/api/kebabs/{kebabId}/opening-year':
+    put:
+      summary: ''
+      operationId: putApiKebabsKebabIdOpeningYear
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                opening_year:
+                  type: string
+                  description: 'Must be 4 digits.'
+                  example: '1897'
+                  nullable: true
+      security: []
+    parameters:
+      -
+        in: path
+        name: kebabId
+        description: ''
+        example: necessitatibus
+        required: true
+        schema:
+          type: string
+  '/api/kebabs/{kebabId}/closing-year':
+    put:
+      summary: ''
+      operationId: putApiKebabsKebabIdClosingYear
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                closing_year:
+                  type: string
+                  description: 'Must be 4 digits.'
+                  example: '8861'
+                  nullable: true
+      security: []
+    parameters:
+      -
+        in: path
+        name: kebabId
+        description: ''
+        example: velit
+        required: true
+        schema:
+          type: string
+  '/api/kebabs/{kebabId}/is-crafted':
+    put:
+      summary: ''
+      operationId: putApiKebabsKebabIdIsCrafted
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_crafted:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: true
+      security: []
+    parameters:
+      -
+        in: path
+        name: kebabId
+        description: ''
+        example: dicta
+        required: true
+        schema:
+          type: string
+  '/api/kebabs/{kebabId}/is-premises':
+    put:
+      summary: ''
+      operationId: putApiKebabsKebabIdIsPremises
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_premises:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: true
+      security: []
+    parameters:
+      -
+        in: path
+        name: kebabId
+        description: ''
+        example: neque
+        required: true
+        schema:
+          type: string
+  '/api/kebabs/{kebabId}/is-chainstore':
+    put:
+      summary: ''
+      operationId: putApiKebabsKebabIdIsChainstore
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_chainstore:
+                  type: boolean
+                  description: ''
+                  example: false
+                  nullable: true
+      security: []
+    parameters:
+      -
+        in: path
+        name: kebabId
+        description: ''
+        example: corporis
+        required: true
+        schema:
+          type: string
+  '/api/kebabs/{kebabId}/ordering-options':
+    post:
+      summary: ''
+      operationId: postApiKebabsKebabIdOrderingOptions
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_option:
+                  type: string
+                  description: ''
+                  example: distinctio
+                  nullable: false
+              required:
+                - new_option
+      security: []
+    delete:
+      summary: ''
+      operationId: deleteApiKebabsKebabIdOrderingOptions
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                option_to_remove:
+                  type: string
+                  description: ''
+                  example: eaque
+                  nullable: false
+              required:
+                - option_to_remove
+      security: []
+    parameters:
+      -
+        in: path
+        name: kebabId
+        description: ''
+        example: eum
+        required: true
+        schema:
+          type: string
+  '/api/kebabs/{kebabId}/pages':
+    post:
+      summary: ''
+      operationId: postApiKebabsKebabIdPages
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_page:
+                  type: string
+                  description: ''
+                  example: voluptates
+                  nullable: false
+              required:
+                - new_page
+      security: []
+    delete:
+      summary: ''
+      operationId: deleteApiKebabsKebabIdPages
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                page_to_remove:
+                  type: string
+                  description: ''
+                  example: quaerat
+                  nullable: false
+              required:
+                - page_to_remove
+      security: []
+    parameters:
+      -
+        in: path
+        name: kebabId
+        description: ''
+        example: id
+        required: true
+        schema:
+          type: string
+  '/api/suggestions/{id}':
+    delete:
+      summary: ''
+      operationId: deleteApiSuggestionsId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the suggestion.'
+        example: non
+        required: true
+        schema:
+          type: string
+tags:
+  -
+    name: Endpoints
+    description: ''
+components:
+  securitySchemes:
+    default:
+      type: http
+      scheme: bearer
+      description: 'You can retrieve your token by visiting your dashboard and clicking <b>Generate API token</b>.'
+security:
+  -
+    default: []

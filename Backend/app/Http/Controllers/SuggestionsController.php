@@ -7,15 +7,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SuggestionRequest;
 use App\Models\Suggestions;
 
+/**
+ * @group Suggestions
+ * **/
 class SuggestionsController extends Controller
 {
     public function createSuggestion(SuggestionRequest $request)
     {
-        $request->validate([
-            "user" => "required|string|max:255",
-            "contents" => "required|string|max:255",
-        ]);
-
         $suggestion = Suggestions::create([
             "user" => $request->input("user"),
             "contents" => $request->input("contents"),

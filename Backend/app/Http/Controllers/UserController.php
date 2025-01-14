@@ -7,12 +7,16 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserRequests\ChangeEmailRequest;
 use App\Http\Requests\UserRequests\ChangeNameRequest;
 use App\Http\Requests\UserRequests\ChangePasswordRequest;
+use App\Http\Requests\UserRequests\ChangeUserRoleRequest;
 use App\Http\Requests\UserRequests\FavoriteKebabRequest;
 use App\Http\Requests\UserRequests\UserRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * @group Users
+ * **/
 class UserController extends Controller
 {
     public function getCurrentUser()
@@ -62,10 +66,6 @@ class UserController extends Controller
     {
         $user = User::find($id);
 
-        if ($user->name !== $request->oldName) {
-            return response()->json(["message" => "Old name not match."], 400);
-        }
-
         $user->update([
             "name" => $request->newName,
         ]);
@@ -77,17 +77,9 @@ class UserController extends Controller
     {
         $user = User::find($id);
 
-        if (!Hash::check($request->oldPassword, $user->password)) {
-            return response()->json(["message" => "Old password not match."], 400);
-        }
-
-        if ($request->newPassword === $request->confirmPassword) {
-            $user->update([
-                "password" => Hash::make($request->newPassword),
-            ]);
-        } else {
-            return response()->json(["message" => "Incorrect password confirmation."], 400);
-        }
+        $user->update([
+            "password" => Hash::make($request->newPassword),
+        ]);
 
         return response()->json($user);
     }
@@ -96,17 +88,20 @@ class UserController extends Controller
     {
         $user = User::find($id);
 
-        if ($user->email !== $request->oldEmail) {
-            return response()->json(["message" => "Old email not match."], 400);
-        }
+        $user->update([
+            "email" => $request->newEmail,
+        ]);
 
-        if ($request->newEmail === $request->confirmEmail) {
-            $user->update([
-                "email" => $request->newEmail,
-            ]);
-        } else {
-            return response()->json(["message" => "Invalid email confirmation."], 400);
-        }
+        return response()->json($user);
+    }
+
+    public function changeUserRole(ChangeUserRoleRequest $request, $id)
+    {
+        $user = User::find($id);
+
+        $user->isAdmin = $request->isAdmin;
+
+        $user->save();
 
         return response()->json($user);
     }

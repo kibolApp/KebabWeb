@@ -15,4 +15,4 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get("/", fn() => view("welcome"));
+Route::get("/api/documentation", fn() => file_get_contents(public_path("docs/index.html")));

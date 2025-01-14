@@ -4,11 +4,32 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\KebabRequests\KebabAddressRequest;
+use App\Http\Requests\KebabRequests\KebabClosingYearRequest;
+use App\Http\Requests\KebabRequests\KebabCommentRequest;
+use App\Http\Requests\KebabRequests\KebabCoordinatesRequest;
+use App\Http\Requests\KebabRequests\KebabIsChainstoreRequest;
+use App\Http\Requests\KebabRequests\KebabIsCraftedRequest;
+use App\Http\Requests\KebabRequests\KebabIsPremisesRequest;
+use App\Http\Requests\KebabRequests\KebabMeatRequest;
+use App\Http\Requests\KebabRequests\KebabNameRequest;
+use App\Http\Requests\KebabRequests\KebabOpeningHourRequest;
+use App\Http\Requests\KebabRequests\KebabOpeningYearRequest;
+use App\Http\Requests\KebabRequests\KebabOrderingOptionRequest;
+use App\Http\Requests\KebabRequests\KebabPageRequest;
+use App\Http\Requests\KebabRequests\KebabRemoveOpeningHourRequest;
+use App\Http\Requests\KebabRequests\KebabRemoveOrderingOptionRequest;
 use App\Http\Requests\KebabRequests\KebabRequest;
+use App\Http\Requests\KebabRequests\KebabStatusRequest;
+use App\Http\Requests\KebabRequests\SauceKebabRequest;
 use App\Models\Kebab;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
+/**
+ * @group Kebab
+ * **/
 class KebabController extends Controller
 {
     public function getAllKebabs()
@@ -16,6 +37,26 @@ class KebabController extends Controller
         try {
             $data = Kebab::all()->map(function ($kebab) {
                 $kebab->logo = $kebab->logo ? "data:image/jpeg;base64," . base64_encode($kebab->logo) : null;
+
+                if (!is_array($kebab->opening_hours)) {
+                    $kebab->opening_hours = json_decode($kebab->opening_hours, true) ?? [];
+                }
+
+                if (!is_array($kebab->meats)) {
+                    $kebab->meats = json_decode($kebab->meats, true) ?? [];
+                }
+
+                if (!is_array($kebab->sauces)) {
+                    $kebab->sauces = json_decode($kebab->sauces, true) ?? [];
+                }
+
+                if (!is_array($kebab->ordering_options)) {
+                    $kebab->ordering_options = json_decode($kebab->ordering_options, true) ?? [];
+                }
+
+                if (!is_array($kebab->pages)) {
+                    $kebab->pages = json_decode($kebab->pages, true) ?? [];
+                }
 
                 return $kebab;
             });
@@ -68,14 +109,20 @@ class KebabController extends Controller
         try {
             $kebab = Kebab::findOrFail($kebabId);
 
-            if ($request->hasFile("logo")) {
-                $kebab->logo = file_get_contents($request->file("logo")->path());
+            $binaryData = file_get_contents("php://input");
 
+            if ($binaryData) {
+                $kebab->logo = $binaryData;
                 $kebab->save();
+
+                $logoUrl = url("/storage/kebabs/" . $kebab->id . "/logo.jpg");
 
                 return response()->json([
                     "message" => "Logo updated successfully.",
-                    "kebab" => $kebab,
+                    "kebab" => [
+                        "id" => $kebab->id,
+                        "logo_url" => $logoUrl,
+                    ],
                 ], 200);
             }
 
@@ -83,6 +130,8 @@ class KebabController extends Controller
                 "error" => "No logo file provided.",
             ], 400);
         } catch (Exception $e) {
+            Log::error("Error updating logo: " . $e->getMessage());
+
             return response()->json([
                 "error" => "Could not update logo.",
                 "message" => $e->getMessage(),
@@ -90,7 +139,7 @@ class KebabController extends Controller
         }
     }
 
-    public function changeKebabName(Request $request, $kebabId)
+    public function changeKebabName(KebabNameRequest $request, $kebabId)
     {
         $request->validate([
             "name" => "required",
@@ -115,12 +164,8 @@ class KebabController extends Controller
         }
     }
 
-    public function changeKebabAddress(Request $request, $kebabId)
+    public function changeKebabAddress(KebabAddressRequest $request, $kebabId)
     {
-        $request->validate([
-            "address" => "required|string|max:255",
-        ]);
-
         try {
             $kebab = Kebab::findOrFail($kebabId);
 
@@ -140,12 +185,8 @@ class KebabController extends Controller
         }
     }
 
-    public function changeKebabCoordinates(Request $request, $kebabId)
+    public function changeKebabCoordinates(KebabCoordinatesRequest $request, $kebabId)
     {
-        $request->validate([
-            "coordinates" => "required|array",
-        ]);
-
         try {
             $kebab = Kebab::findOrFail($kebabId);
 
@@ -165,16 +206,12 @@ class KebabController extends Controller
         }
     }
 
-    public function addSauceToKebab(Request $request, $kebabId)
+    public function addSauceToKebab(SauceKebabRequest $request, $kebabId)
     {
-        $request->validate([
-            "sauce" => "required|string",
-        ]);
-
         try {
             $kebab = Kebab::findOrFail($kebabId);
 
-            $sauces = json_decode($kebab->sauces, true) ?? [];
+            $sauces = is_array($kebab->sauces) ? $kebab->sauces : json_decode($kebab->sauces, true) ?? [];
 
             if (!in_array($request->input("sauce"), $sauces, true)) {
                 $sauces[] = $request->input("sauce");
@@ -195,16 +232,12 @@ class KebabController extends Controller
         }
     }
 
-    public function removeSauceFromKebab(Request $request, $kebabId)
+    public function removeSauceFromKebab(SauceKebabRequest $request, $kebabId)
     {
-        $request->validate([
-            "sauce" => "required|string",
-        ]);
-
         try {
             $kebab = Kebab::findOrFail($kebabId);
 
-            $sauces = json_decode($kebab->sauces, true) ?? [];
+            $sauces = is_array($kebab->sauces) ? $kebab->sauces : json_decode($kebab->sauces, true) ?? [];
 
             if (($key = array_search($request->input("sauce"), $sauces, true)) !== false) {
                 unset($sauces[$key]);
@@ -225,16 +258,11 @@ class KebabController extends Controller
         }
     }
 
-    public function addMeatToKebab(Request $request, $kebabId)
+    public function addMeatToKebab(KebabMeatRequest $request, $kebabId)
     {
-        $request->validate([
-            "meat" => "required|string",
-        ]);
-
         try {
             $kebab = Kebab::findOrFail($kebabId);
-
-            $meats = json_decode($kebab->meats, true) ?? [];
+            $meats = is_array($kebab->meats) ? $kebab->meats : json_decode($kebab->meats, true) ?? [];
 
             if (!in_array($request->input("meat"), $meats, true)) {
                 $meats[] = $request->input("meat");
@@ -255,16 +283,12 @@ class KebabController extends Controller
         }
     }
 
-    public function removeMeatFromKebab(Request $request, $kebabId)
+    public function removeMeatFromKebab(KebabMeatRequest $request, $kebabId)
     {
-        $request->validate([
-            "meat" => "required|string",
-        ]);
-
         try {
             $kebab = Kebab::findOrFail($kebabId);
 
-            $meats = json_decode($kebab->meats, true) ?? [];
+            $meats = is_array($kebab->meats) ? $kebab->meats : json_decode($kebab->meats, true) ?? [];
 
             if (($key = array_search($request->input("meat"), $meats, true)) !== false) {
                 unset($meats[$key]);
@@ -285,12 +309,8 @@ class KebabController extends Controller
         }
     }
 
-    public function changeKebabStatus(Request $request, $kebabId)
+    public function changeKebabStatus(KebabStatusRequest $request, $kebabId)
     {
-        $request->validate([
-            "status" => "required|in:exists,closed,planned",
-        ]);
-
         try {
             $kebab = Kebab::findOrFail($kebabId);
 
@@ -310,17 +330,19 @@ class KebabController extends Controller
         }
     }
 
-    public function addOpeningHour(Request $request, $kebabId)
+    public function addOpeningHour(KebabOpeningHourRequest $request, $kebabId)
     {
-        $request->validate([
-            "day" => "required|string|in:monday,tuesday,wednesday,thursday,friday,saturday,sunday",
-            "hours" => "required|string",
-        ]);
-
         try {
             $kebab = Kebab::findOrFail($kebabId);
+            $openingHours = [];
 
-            $openingHours = json_decode($kebab->opening_hours, true) ?? [];
+            if (is_array($kebab->opening_hours)) {
+                $openingHours = $kebab->opening_hours;
+            } else {
+                if (is_string($kebab->opening_hours)) {
+                    $openingHours = json_decode($kebab->opening_hours, true) ?? [];
+                }
+            }
 
             $openingHours[$request->input("day")] = $request->input("hours");
 
@@ -339,22 +361,26 @@ class KebabController extends Controller
         }
     }
 
-    public function removeOpeningHour(Request $request, $kebabId)
+    public function removeOpeningHour(KebabRemoveOpeningHourRequest $request, $kebabId)
     {
-        $request->validate([
-            "day" => "required|string|in:monday,tuesday,wednesday,thursday,friday,saturday,sunday",
-        ]);
-
         try {
             $kebab = Kebab::findOrFail($kebabId);
+            Log::info("Kebab znaleziony:", ["id" => $kebabId]);
+            $openingHours = [];
 
-            $openingHours = json_decode($kebab->opening_hours, true) ?? [];
+            if (is_array($kebab->opening_hours)) {
+                $openingHours = $kebab->opening_hours;
+            } else {
+                if (is_string($kebab->opening_hours)) {
+                    $openingHours = json_decode($kebab->opening_hours, true) ?? [];
+                }
+            }
 
             if (isset($openingHours[$request->input("day")])) {
                 unset($openingHours[$request->input("day")]);
             }
 
-            $kebab->opening_hours = json_encode($openingHours);
+            $kebab->opening_hours = $openingHours;
             $kebab->save();
 
             return response()->json([
@@ -369,13 +395,8 @@ class KebabController extends Controller
         }
     }
 
-    public function changeOpeningHour(Request $request, $kebabId)
+    public function changeOpeningHour(KebabOpeningHourRequest $request, $kebabId)
     {
-        $request->validate([
-            "day" => "required|string|in:monday,tuesday,wednesday,thursday,friday,saturday,sunday", 
-            "hours" => "required|string",
-        ]);
-
         try {
             $kebab = Kebab::findOrFail($kebabId);
 
@@ -398,12 +419,8 @@ class KebabController extends Controller
         }
     }
 
-    public function updateOpeningYear(Request $request, $kebabId)
+    public function updateOpeningYear(KebabOpeningYearRequest $request, $kebabId)
     {
-        $request->validate([
-            "opening_year" => "nullable|integer|digits:4",
-        ]);
-
         try {
             $kebab = Kebab::findOrFail($kebabId);
 
@@ -423,12 +440,8 @@ class KebabController extends Controller
         }
     }
 
-    public function updateClosingYear(Request $request, $kebabId)
+    public function updateClosingYear(KebabClosingYearRequest $request, $kebabId)
     {
-        $request->validate([
-            "closing_year" => "nullable|integer|digits:4",
-        ]);
-
         try {
             $kebab = Kebab::findOrFail($kebabId);
 
@@ -448,12 +461,8 @@ class KebabController extends Controller
         }
     }
 
-    public function updateIsCrafted(Request $request, $kebabId)
+    public function updateIsCrafted(KebabIsCraftedRequest $request, $kebabId)
     {
-        $request->validate([
-            "is_crafted" => "nullable|boolean",
-        ]);
-
         try {
             $kebab = Kebab::findOrFail($kebabId);
 
@@ -473,12 +482,8 @@ class KebabController extends Controller
         }
     }
 
-    public function updateIsPremises(Request $request, $kebabId)
+    public function updateIsPremises(KebabIsPremisesRequest $request, $kebabId)
     {
-        $request->validate([
-            "is_premises" => "nullable|boolean",
-        ]);
-
         try {
             $kebab = Kebab::findOrFail($kebabId);
 
@@ -498,7 +503,7 @@ class KebabController extends Controller
         }
     }
 
-    public function updateIsChainstore(Request $request, $kebabId)
+    public function updateIsChainstore(KebabIsChainstoreRequest $request, $kebabId)
     {
         $request->validate([
             "is_chainstore" => "nullable|boolean",
@@ -523,19 +528,16 @@ class KebabController extends Controller
         }
     }
 
-    public function addOrderingOption(Request $request, $kebabId)
+    public function addOrderingOption(KebabOrderingOptionRequest $request, $kebabId)
     {
-        $request->validate([
-            "new_option" => "required|string",
-        ]);
-
         try {
             $kebab = Kebab::findOrFail($kebabId);
 
-            $orderingOptions = $kebab->ordering_options ?? [];
+            $orderingOptions = is_array($kebab->ordering_options) ? $kebab->ordering_options : json_decode($kebab->ordering_options, true) ?? [];
 
-            $orderingOptions[] = $request->input("new_option");
-
+            if (!in_array($request->input("new_option"), $orderingOptions, true)) {
+                $orderingOptions[] = $request->input("new_option");
+            }
             $kebab->ordering_options = $orderingOptions;
 
             $kebab->save();
@@ -552,20 +554,19 @@ class KebabController extends Controller
         }
     }
 
-    public function removeOrderingOption(Request $request, $kebabId)
+    public function removeOrderingOption(KebabRemoveOrderingOptionRequest $request, $kebabId)
     {
-        $request->validate([
-            "option_to_remove" => "required|string",
-        ]);
-
         try {
             $kebab = Kebab::findOrFail($kebabId);
 
-            $orderingOptions = $kebab->ordering_options ?? [];
+            $orderingOptions = is_array($kebab->ordering_options) ? $kebab->ordering_options : json_decode($kebab->ordering_options, true) ?? [];
 
-            $orderingOptions = array_filter($orderingOptions, fn($option) => $option !== $request->input("option_to_remove"));
+            if (($key = array_search($request->input("option_to_remove"), $orderingOptions, true)) !== false) {
+                unset($orderingOptions[$key]);
+            }
+            $kebab->ordering_options = $orderingOptions;
 
-            $kebab->ordering_options = array_values($orderingOptions); 
+            $kebab->ordering_options = json_encode(array_values($orderingOptions)); 
 
             $kebab->save();
 
@@ -581,11 +582,12 @@ class KebabController extends Controller
         }
     }
 
-    public function addComment(Request $request, $kebabId)
+    public function addComment(KebabCommentRequest $request, $kebabId)
     {
         $request->validate([
             "id_user" => "required|integer", 
             "comment" => "required|string",
+            "user_name" => "required|string",
         ]);
 
         try {
@@ -595,6 +597,7 @@ class KebabController extends Controller
 
             $newComment = [
                 "id_user" => $request->input("id_user"),
+                "user_name" => $request->input("user_name"),
                 "comment" => $request->input("comment"),
             ];
 
@@ -616,13 +619,30 @@ class KebabController extends Controller
         }
     }
 
-    public function removeComment(Request $request, $kebabId)
+    public function GetComments(Request $request, $kebabId)
     {
-        $request->validate([
-            "id_user" => "required|integer", 
-            "comment" => "required|string",
-        ]);
+        try {
+            $kebab = Kebab::find($kebabId);
 
+            if (!$kebab) {
+                return response()->json([
+                    "error" => "Kebab not found.",
+                ], 404);
+            }
+
+            $comments = $kebab->comments;
+
+            return response()->json($comments);
+        } catch (Exception $e) {
+            return response()->json([
+                "error" => "An error occurred while fetching kebab comments.",
+                "message" => $e->getMessage(),
+            ], 500);
+        }
+    }        
+
+    public function removeComment(KebabCommentRequest $request, $kebabId)
+    {
         try {
             $kebab = Kebab::findOrFail($kebabId);
 
@@ -646,46 +666,57 @@ class KebabController extends Controller
         }
     }
 
-    public function updateGoogleReviews(Request $request, $kebabId)
+    public function addPage(KebabPageRequest $request, $kebabId)
     {
-        $request->validate([
-            "google_reviews" => "nullable|numeric|between:0,99.9",
-        ]);
-
         try {
             $kebab = Kebab::findOrFail($kebabId);
 
-            $googleReviews = $request->input("google_reviews") !== null ? $request->input("google_reviews") : null;
+            $page = is_array($kebab->pages) ? $kebab->pages : json_decode($kebab->pages, true) ?? [];
 
-            $kebab->google_reviews = $googleReviews;
+            if (!in_array($request->input("page"), $page, true)) {
+                $page[] = $request->input("page");
+            }
+            $kebab->pages = $page;
 
             $kebab->save();
 
             return response()->json([
-                "message" => "Google reviews updated successfully.",
-                "google_reviews" => $kebab->google_reviews,
+                "message" => "New page added successfully.",
+                "pages" => $kebab->pages,
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                "error" => "Could not update Google reviews.",
+                "error" => "Could not add page.",
                 "message" => $e->getMessage(),
             ], 500);
         }
     }
 
-    public function updatePyszneplReviews(Request $request, $kebabId)
+    public function removePage(KebabPageRequest $request, $kebabId)
     {
-        $kebab = Kebab::findOrFail($kebabId);
-        $kebab->pysznepl_reviews = $request->input("pysznepl_reviews");
-        $kebab->save();
+        try {
+            $kebab = Kebab::findOrFail($kebabId);
 
-        return response()->json(["message" => "Pyszne.pl reviews updated successfully."]);
-    }
+            $page = is_array($kebab->pages) ? $kebab->pages : json_decode($kebab->pages, true) ?? [];
 
-    public function getPyszneplReviews($kebabId)
-    {
-        $kebab = Kebab::findOrFail($kebabId);
+            if (($key = array_search($request->input("page"), $page, true)) !== false) {
+                unset($page[$key]);
+            }
+            $kebab->pages = $page;
 
-        return response()->json(["pysznepl_reviews" => $kebab->pysznepl_reviews]);
+            $kebab->pages = json_encode(array_values($page)); 
+
+            $kebab->save();
+
+            return response()->json([
+                "message" => "Page removed successfully.",
+                "pages" => $kebab->pages,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                "error" => "Could not remove page.",
+                "message" => $e->getMessage(),
+            ], 500);
+        }
     }
 }

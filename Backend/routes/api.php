@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KebabController;
+use App\Http\Controllers\KebabScraperController;
 use App\Http\Controllers\SuggestionsController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +23,8 @@ use Illuminate\Support\Facades\Route;
 Route::post("/register", [AuthController::class, "register"]);
 Route::post("/login", [AuthController::class, "login"]);
 Route::get("/kebabs", [KebabController::class, "getAllKebabs"]);
+Route::get("/comments/{id}", [KebabController::class, "GetComments"]);
+Route::get("/scrape-reviews", [KebabScraperController::class, "scrapeAllReviews"]);
 
 Route::middleware("auth:sanctum")->group(function (): void {
     Route::post("/logout", [AuthController::class, "logout"]);
@@ -33,10 +36,14 @@ Route::middleware("auth:sanctum")->group(function (): void {
     Route::put("/changePassword/{id}", [UserController::class, "changePassword"]);
     Route::put("/changeEmail/{id}", [UserController::class, "changeEmail"]);
     Route::post("/suggestions", [SuggestionsController::class, "createSuggestion"]);
-    Route::get("/suggestions", [SuggestionsController::class, "showAllSuggestions"]);
+    Route::post("/kebabs/{kebabId}/comments", [KebabController::class, "addComment"]);
+    Route::delete("/kebabs/{kebabId}/comments", [KebabController::class, "removeComment"]);
 });
 
+Route::get("/documentation", fn() => view("vendor.scribe.index"));
+
 Route::middleware(["auth:sanctum", "admin"])->group(function (): void {
+    Route::put("/changeUserRole/{id}", [UserController::class, "changeUserRole"]);
     Route::delete("/deleteUser/{id}", [UserController::class, "deleteUser"]);
     Route::get("/getAllUsers", [UserController::class, "getAllUsers"]);
     Route::post("/addNewUser", [UserController::class, "addNewUser"]);
@@ -61,9 +68,10 @@ Route::middleware(["auth:sanctum", "admin"])->group(function (): void {
     Route::put("/kebabs/{kebabId}/is-chainstore", [KebabController::class, "updateIsChainstore"]);
     Route::post("/kebabs/{kebabId}/ordering-options", [KebabController::class, "addOrderingOption"]);
     Route::delete("/kebabs/{kebabId}/ordering-options", [KebabController::class, "removeOrderingOption"]);
-    Route::post("/kebabs/{kebabId}/comments", [KebabController::class, "addComment"]);
-    Route::delete("/kebabs/{kebabId}/comments", [KebabController::class, "removeComment"]);
     Route::put("/kebabs/{kebabId}/google-reviews", [KebabController::class, "updateGoogleReviews"]);
     Route::put("/kebabs/{kebabId}/pysznepl-reviews", [KebabController::class, "updatePyszneplReviews"]);
+    Route::post("/kebabs/{kebabId}/pages", [KebabController::class, "addPage"]);
+    Route::delete("/kebabs/{kebabId}/pages", [KebabController::class, "removePage"]);
+    Route::get("/suggestions", [SuggestionsController::class, "showAllSuggestions"]);
     Route::delete("/suggestions/{id}", [SuggestionsController::class, "destroySuggestion"]);
 });

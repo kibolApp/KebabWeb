@@ -9,17 +9,21 @@
   "license": "MIT",
   "require": {
     "php": "^8.1",
-    "guzzlehttp/guzzle": "^7.2",
+    "guzzlehttp/guzzle": "^7.9",
     "laravel/framework": "^10.10",
     "laravel/sanctum": "^3.3",
     "laravel/socialite": "^5.11",
     "laravel/tinker": "^2.8",
+    "swagger-api/swagger-ui": "^5.18",
     "symfony/browser-kit": "^7.1",
-    "symfony/http-client": "^7.1"
+    "symfony/dom-crawler": "^7.2",
+    "symfony/http-client": "^7.1",
+    "zircote/swagger-php": "^4.11"
   },
   "require-dev": {
     "blumilksoftware/codestyle": "^4.0",
     "fakerphp/faker": "^1.9.1",
+    "knuckleswtf/scribe": "^4.39",
     "laravel/pint": "^1.0",
     "laravel/sail": "^1.18",
     "mockery/mockery": "^1.4.4",
