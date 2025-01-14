@@ -145,7 +145,8 @@ export default function SearchPanel({ kebabs, onSearch }) {
       filteredKebabs = filteredKebabs.filter(isOpenNow);
     }
   
-    filteredKebabs = filteredKebabs.sort((a, b) => {
+    filteredKebabs = [...filteredKebabs].sort((a, b) => {
+      if (!a.name || !b.name) return 0;
       if (order === 'asc') {
         return a.name.localeCompare(b.name);
       }

@@ -7,7 +7,7 @@ export default function Footer() {
       <p>
         <a href="https://github.com/kibolApp" target="_blank" rel="noopener noreferrer" className="font-bold text-gold">
           ©kibolAPP
-        </a> 2024 Legnica Kebab City Tour. Wszelkie prawa zastrzeżone.
+        </a> 2025 Legnica Kebab City Tour. Wszelkie prawa zastrzeżone.
       </p>
     </footer>
   );
