@@ -85,7 +85,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-10">
             <button 
               className="bg-oliveGreen text-white py-4 md:py-6 px-8 md:w-40 rounded-lg hover:bg-darkGreen focus:outline-none focus:ring-2 focus:ring-darkGreen text-lg md:text-xl"
-              onClick={() => navigate('/map')}
+              onClick={() => navigate(isLoggedIn ? '/map' : '/map-clone')}
             >
               MAPA
             </button>

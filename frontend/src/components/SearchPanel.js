@@ -10,6 +10,8 @@ export default function SearchPanel({ kebabs, onSearch }) {
   const [selectedSauces, setSelectedSauces] = useState([]);
   const [selectedMeats, setSelectedMeats] = useState([]);
   const [selectedOrderingOptions, setSelectedOrderingOptions] = useState([]);
+  const [selectedPages, setSelectedPages] = useState([]);
+
 
   const allSauces = Array.from(
     new Set(kebabs.flatMap((kebab) => kebab.sauces || []))
@@ -22,6 +24,10 @@ export default function SearchPanel({ kebabs, onSearch }) {
   const allOrderingOptions = Array.from(
     new Set(kebabs.flatMap((kebab) => kebab.ordering_options || []))
   );
+
+  const allPages = Array.from(
+    new Set(kebabs.flatMap((kebab) => Object.keys(kebab.pages || {})))
+  );  
 
   const getCurrentTimeDetails = () => {
     const now = new Date();
@@ -87,13 +93,22 @@ export default function SearchPanel({ kebabs, onSearch }) {
       applyFilters(searchQuery, selectedSauces, selectedMeats, showOpenNow, sortOrder, updatedOptions);
   };
 
+  const handlePageToggle = (page) => {
+    const updatedPages = selectedPages.includes(page)
+      ? selectedPages.filter((p) => p !== page)
+      : [...selectedPages, page];
+  
+    setSelectedPages(updatedPages);
+    applyFilters(searchQuery, selectedSauces, selectedMeats, showOpenNow, sortOrder, selectedOrderingOptions, updatedPages);
+  };
+
   const toggleOpenNow = () => {
     const updatedShowOpenNow = !showOpenNow;
     setShowOpenNow(updatedShowOpenNow);
     applyFilters(searchQuery, selectedSauces, selectedMeats, updatedShowOpenNow, sortOrder);
   };
 
-  const applyFilters = (query, sauces, meats, openNow, order, orderingOptions = []) => {
+  const applyFilters = (query, sauces, meats, openNow, order, orderingOptions = [], pages = []) => {
     let filteredKebabs = kebabs;
   
     if (query) {
@@ -120,11 +135,18 @@ export default function SearchPanel({ kebabs, onSearch }) {
       );
     }
   
+    if (pages.length > 0) {
+      filteredKebabs = filteredKebabs.filter((kebab) =>
+        pages.every((page) => Object.keys(kebab.pages || {}).includes(page))
+      );
+    }
+  
     if (openNow) {
       filteredKebabs = filteredKebabs.filter(isOpenNow);
     }
   
-    filteredKebabs = filteredKebabs.sort((a, b) => {
+    filteredKebabs = [...filteredKebabs].sort((a, b) => {
+      if (!a.name || !b.name) return 0;
       if (order === 'asc') {
         return a.name.localeCompare(b.name);
       }
@@ -133,6 +155,18 @@ export default function SearchPanel({ kebabs, onSearch }) {
   
     onSearch(filteredKebabs);
   };
+
+  const kebabStatusCounts = () => {
+    const statuses = { exists: 0, closed: 0, planned: 0 };
+    kebabs.forEach((kebab) => {
+      if (statuses[kebab.status] !== undefined) {
+        statuses[kebab.status]++;
+      }
+    });
+    return statuses;
+  };
+  
+  const { exists, closed, planned } = kebabStatusCounts();
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md mb-4">
@@ -143,6 +177,12 @@ export default function SearchPanel({ kebabs, onSearch }) {
         onChange={handleSearchChange}
         className="w-full p-2 border rounded-lg mb-2"
       />
+      <div className="mb-4 flex justify-between items-center bg-gray-100 p-3 rounded-lg shadow-sm">
+        <p className="text-green-600 font-bold">Otwarte: {exists}</p>
+        <p className="text-red-600 font-bold">Zamknięte: {closed}</p>
+        <p className="text-blue-600 font-bold">Planowane: {planned}</p>
+      </div>
+
       <div className="mb-2 text-gray-700 font-medium">Sortowanie po nazwie:</div>
       <div className="flex space-x-2 mb-4">
         <button
@@ -245,6 +285,24 @@ export default function SearchPanel({ kebabs, onSearch }) {
                     className="w-4 h-4"
                   />
                   <span className="break-words text-sm">{option}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Strony */}
+          <div className="mb-4">
+            <h3 className="text-gray-700 font-medium mb-2">Strony:</h3>
+            <div className="grid grid-cols-4 gap-y-2 gap-x-4">
+              {allPages.map((page) => (
+                <label key={page} className="flex items-start space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedPages.includes(page)}
+                    onChange={() => handlePageToggle(page)}
+                    className="w-4 h-4"
+                  />
+                  <span className="break-words text-sm capitalize">{page}</span>
                 </label>
               ))}
             </div>
