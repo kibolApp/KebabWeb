@@ -18,6 +18,7 @@ export default function MapClone() {
 
   const [kebabs, setKebabs] = useState([]);
   const [filteredKebabs, setFilteredKebabs] = useState([]);
+  const [activeKebabIndex, setActiveKebabIndex] = useState(null);
 
   useEffect(() => {
     axiosClient
@@ -40,6 +41,20 @@ export default function MapClone() {
 
   const handleSearch = (filtered) => {
     setFilteredKebabs(filtered);
+  };
+
+  const scrollToKebab = (index) => {
+    setActiveKebabIndex(index);
+
+    setTimeout(() => {
+      const kebabElement = document.getElementById(`kebab-${index}`);
+      if (kebabElement) {
+        kebabElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }
+    }, 0);
   };
 
   return (
@@ -70,7 +85,13 @@ export default function MapClone() {
               >
                 <Popup>
                   <b>{kebab.name}</b> <br />
-                  {kebab.address}
+                  {kebab.address} <br />
+                  <button
+                    className="text-blue-500 underline"
+                    onClick={() => scrollToKebab(index)}
+                  >
+                    Szczegóły
+                  </button>
                 </Popup>
               </Marker>
             ))}
@@ -82,7 +103,7 @@ export default function MapClone() {
             <SearchPanel kebabs={kebabs} onSearch={handleSearch} />
           </div>
           <div className="flex-grow overflow-y-auto">
-            <KebabsListClone kebabs={filteredKebabs} />
+            <KebabsListClone kebabs={filteredKebabs} activeKebabIndex={activeKebabIndex} />
           </div>
         </div>
       </main>

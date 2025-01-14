@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons';
 
@@ -23,19 +23,36 @@ const translateStatus = (status) => {
   return statusMap[status] || 'Nieznany';
 };
 
-export default function KebabsListClone({ kebabs }) {
-  const [openIndex, setOpenIndex] = useState(null);
+export default function KebabsListClone({ kebabs, activeKebabIndex }) {
+    const [openIndex, setOpenIndex] = useState(null);
+    const kebabRefs = useRef([]);
 
-  const toggleDetails = (index) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
+    useEffect(() => {
+        if (activeKebabIndex !== null) {
+          setOpenIndex(activeKebabIndex);
+          if (kebabRefs.current[activeKebabIndex]) {
+            kebabRefs.current[activeKebabIndex].scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+            });
+          }
+        }
+      }, [activeKebabIndex]);
+    
+      const toggleDetails = (index) => {
+        setOpenIndex(openIndex === index ? null : index);
+      };
 
   return (
     <div className="w-full grid grid-cols-1 gap-4 p-2">
       {kebabs.map((kebab, index) => (
         <div
           key={kebab.id}
-          className="p-4 rounded-lg shadow-md bg-white"
+          id={`kebab-${index}`}
+          ref={(el) => (kebabRefs.current[index] = el)}
+          className={`p-4 rounded-lg shadow-md bg-white ${
+            activeKebabIndex === index ? 'border-2 border-blue-500' : ''
+          }`}
         >
           <div className="flex items-center justify-between p-3">
             <div className="flex items-center">
