@@ -8,7 +8,7 @@ describe('Navigate between Home and Map', () => {
 
     cy.contains('MAPA').click();
 
-    cy.url().should('include', '/map');
+    cy.url().should('include', '/map-clone');
     cy.contains('Powrót').should('be.visible');
 
     cy.contains('Powrót').click();
