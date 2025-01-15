@@ -1,10 +1,14 @@
-import '../index.css'
-import React from 'react'
+import '../index.css';
+import React from 'react';
 
 export default function Footer() {
   return (
     <footer className="w-full bg-darkGreen text-white py-4 text-center">
-      <p>© 2024 Legnica Kebab City Tour. Wszelkie prawa zastrzeżone.</p>
+      <p>
+        <a href="https://github.com/kibolApp" target="_blank" rel="noopener noreferrer" className="font-bold text-gold">
+          ©kibolAPP
+        </a> 2025 Legnica Kebab City Tour. Wszelkie prawa zastrzeżone.
+      </p>
     </footer>
-  )
+  );
 }

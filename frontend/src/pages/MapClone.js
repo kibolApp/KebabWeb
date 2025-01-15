@@ -2,17 +2,15 @@ import React, { useState, useEffect } from 'react';
 import '../index.css';
 import Header from '../components/Header.js';
 import Footer from '../components/Footer.js';
-import KebabsList from '../components/KebabsList.js';
+import KebabsListClone from '../components/KebabListClone.js';
 import SearchPanel from '../components/SearchPanel.js';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import axiosClient from '../axiosClient.js';
 import kebab_icon from '../img/kebab_icon.png';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import axiosClient from '../axiosClient.js';
 
-export default function Map() {
+export default function MapClone() {
   const legnicaBounds = [
     [51.158, 16.114],
     [51.242, 16.260],
@@ -28,11 +26,9 @@ export default function Map() {
       .then((response) => {
         setKebabs(response.data);
         setFilteredKebabs(response.data);
-        console.log('Pobrane kebaby:', response.data);
       })
       .catch((error) => {
         console.error('Błąd pobierania kebabów:', error);
-        toast.error('Błąd pobrania szczegółów kebabów z serwera. Odśwież stronę lub skontaktuj się z administratorem.');
       });
   }, []);
 
@@ -53,11 +49,9 @@ export default function Map() {
     setTimeout(() => {
       const kebabElement = document.getElementById(`kebab-${index}`);
       if (kebabElement) {
-        const rect = kebabElement.getBoundingClientRect();
-        const offset = window.scrollY + rect.top - 150;
-        window.scrollTo({
-          top: offset,
+        kebabElement.scrollIntoView({
           behavior: 'smooth',
+          block: 'center',
         });
       }
     }, 0);
@@ -108,14 +102,12 @@ export default function Map() {
           <div className="sticky top-0 bg-gray-100 z-10 shadow-md">
             <SearchPanel kebabs={kebabs} onSearch={handleSearch} />
           </div>
-
-          <div className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
-            <KebabsList kebabs={filteredKebabs} activeKebabIndex={activeKebabIndex} />
+          <div className="flex-grow overflow-y-auto">
+            <KebabsListClone kebabs={filteredKebabs} activeKebabIndex={activeKebabIndex} />
           </div>
         </div>
       </main>
       <Footer />
-      <ToastContainer position="top-center" autoClose={5000} hideProgressBar />
     </div>
   );
 }
