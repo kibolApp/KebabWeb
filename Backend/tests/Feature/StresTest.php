@@ -1,27 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
 
-    test('API handles multiple requests under load', function () {
+test("API handles multiple requests under load", function (): void {
     $iterations = 100;
 
     for ($i = 0; $i < $iterations; $i++) {
-        $response = $this->getJson('/api/kebabs');
+        $response = $this->getJson("/api/kebabs");
 
-        expect(in_array($response->status(), [200, 429]))
+        expect(in_array($response->status(), [200, 429], true))
             ->toBeTrue("Unexpected status: {$response->status()}");
     }
 });
-    test('API rate limits requests correctly', function () {
+test("API rate limits requests correctly", function (): void {
     $iterations = 100;
     $successfulResponses = 0;
     $rateLimitResponses = 0;
 
     for ($i = 0; $i < $iterations; $i++) {
-        $response = $this->getJson('/api/kebabs');
+        $response = $this->getJson("/api/kebabs");
 
         if ($response->status() === 200) {
             $successfulResponses++;
