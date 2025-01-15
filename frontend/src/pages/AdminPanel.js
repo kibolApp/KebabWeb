@@ -957,7 +957,7 @@ export default function AdminPanel() {
                 </select>
               </div>
 
-              {/* Godziny otwarcia */}
+              {/* Godziny otwarcia
               <div className="mb-4">
                 <label className="font-bold block">Godziny otwarcia:</label>
                 {Object.entries(selectedKebab?.opening_hours || {}).map(([day, hours], index) => (
@@ -1010,7 +1010,7 @@ export default function AdminPanel() {
                 >
                   Dodaj dzień
                 </button>
-              </div>
+              </div> */}
 
               {/* Rok otwarcia */}
               <div className="mb-4">
