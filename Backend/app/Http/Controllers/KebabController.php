@@ -72,7 +72,6 @@ class KebabController extends Controller
 
     public function addKebab(KebabRequest $request)
     {
-
         try {
             $kebab = new Kebab($request->all());
 
