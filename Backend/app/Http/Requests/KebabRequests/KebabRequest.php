@@ -24,7 +24,7 @@ class KebabRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "logo" => "required",
+            'logo' => 'required|file|image|mimes:jpeg,png,jpg,gif|max:10240',
             "name" => "required",
             "address" => "required|string|max:255",
             "coordinates" => "required|array",

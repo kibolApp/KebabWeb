@@ -40,7 +40,6 @@ Route::middleware("auth:sanctum")->group(function (): void {
     Route::delete("/kebabs/{kebabId}/comments", [KebabController::class, "removeComment"]);
 });
 
-Route::get("/documentation", fn() => view("vendor.scribe.index"));
 
 Route::middleware(["auth:sanctum", "admin"])->group(function (): void {
     Route::put("/changeUserRole/{id}", [UserController::class, "changeUserRole"]);
