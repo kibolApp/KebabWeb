@@ -14,5 +14,5 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
 Route::get("/", fn() => view("welcome"));
+Route::get("/api/documentation", fn() => file_get_contents(public_path("docs/index.html")));

@@ -1,0 +1,274 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "KebabApp API",
+        "description": "API for managing kebab stores",
+        "termsOfService": "http://example.com/terms",
+        "contact": {
+            "email": "support@example.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost/api",
+            "description": "Local Development Server"
+        }
+    ],
+    "paths": {
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register a new user",
+                "operationId": "8a56853624e025573120a09a4c75d468",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "johndoe@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User registered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "$ref": "#/components/schemas/User"
+                                        },
+                                        "token": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login an existing user",
+                "operationId": "a3b306d14572d1f4bd6c064b3233e7b8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "johndoe@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User logged in successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "$ref": "#/components/schemas/User"
+                                        },
+                                        "token": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout the current user",
+                "operationId": "fe8f3429cd6979b3b4517e186505f9f9",
+                "responses": {
+                    "204": {
+                        "description": "Successfully logged out"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "KebabRequest": {
+                "required": [
+                    "logo",
+                    "name",
+                    "address",
+                    "coordinates",
+                    "sauces",
+                    "meats",
+                    "status",
+                    "opening_hours",
+                    "opening_year",
+                    "closing_year",
+                    "is_crafted",
+                    "is_premises",
+                    "is_chainstore",
+                    "ordering_options"
+                ],
+                "properties": {
+                    "logo": {
+                        "description": "Logo of the kebab store",
+                        "type": "string"
+                    },
+                    "name": {
+                        "description": "Name of the kebab store",
+                        "type": "string"
+                    },
+                    "address": {
+                        "description": "Address of the kebab store",
+                        "type": "string"
+                    },
+                    "coordinates": {
+                        "description": "Coordinates of the kebab store",
+                        "type": "string"
+                    },
+                    "sauces": {
+                        "description": "List of sauces available",
+                        "type": "string"
+                    },
+                    "meats": {
+                        "description": "List of meats available",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "Status of the store",
+                        "type": "string"
+                    },
+                    "opening_hours": {
+                        "description": "Opening hours of the store",
+                        "type": "string"
+                    },
+                    "opening_year": {
+                        "description": "Year the store opened",
+                        "type": "integer"
+                    },
+                    "closing_year": {
+                        "description": "Year the store closed",
+                        "type": "integer"
+                    },
+                    "is_crafted": {
+                        "description": "Whether the store is crafted",
+                        "type": "boolean"
+                    },
+                    "is_premises": {
+                        "description": "Whether the store is a premises",
+                        "type": "boolean"
+                    },
+                    "is_chainstore": {
+                        "description": "Whether the store is part of a chain",
+                        "type": "boolean"
+                    },
+                    "ordering_options": {
+                        "description": "Ordering options available",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "required": [
+                    "id",
+                    "name",
+                    "email",
+                    "isAdmin"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "User ID",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "User's name",
+                        "type": "string"
+                    },
+                    "email": {
+                        "description": "User's email",
+                        "type": "string"
+                    },
+                    "isAdmin": {
+                        "description": "User's admin status",
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Authentication related endpoints"
+        }
+    ]
+}
